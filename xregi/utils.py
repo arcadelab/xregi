@@ -374,8 +374,7 @@ def generate_xreg_input(xray_dir: str, landmarks_dir: str, output_dir: str):
 def read_ct_dicom(ct_path: str):
     pass
 
-
-def dicom2h5(xray_path: str, h5_path: str, label_path: str):
+def dicom2h5(xray_path:str, h5_path:str, label_path:str):
     def read_xray(path, voi_lut=True, fix_monochrome=True):
         dicom = pydicom.read_file(path)
 
@@ -399,11 +398,6 @@ def dicom2h5(xray_path: str, h5_path: str, label_path: str):
     file_names = [f for f in os.listdir(
         folder_path) if os.path.isfile(os.path.join(folder_path, f))]
     num_images = len(file_names)
-
-    # Read the first image to get its shape
-    first_image_path = os.path.join(current_dir, folder_path, file_names[0])
-    first_image = read_xray(first_image_path)
-    image_shape = first_image.shape
 
     # Create an HDF5 file
     h5_file = h5py.File("synthex_input.h5", "w")
@@ -435,7 +429,7 @@ def dicom2h5(xray_path: str, h5_path: str, label_path: str):
     # Store all images in the dataset
     for i, file_name in enumerate(file_names):
         file_path = os.path.join(current_dir, folder_path, file_name)
-        image_data = read_xray(file_path)
+        image_data = read_xray_dicom(file_path)
         dataset[i, :, :] = image_data
 
     # currently unkown of camera paras, now just copy content from label_real.h5
@@ -460,6 +454,8 @@ def dicom2h5(xray_path: str, h5_path: str, label_path: str):
         "segs", (num_images, 360, 360), dtype="|u1")
     label_grp_segs[()] = real_label["01"]["segs"][0:num_images]
 
+
+        
     # Close the HDF5 file to save changes
     h5_file.close()
     real_label.close()
