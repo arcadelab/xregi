@@ -7,11 +7,75 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
-def get_3d_landmarks(source_file_path :str, source_file_type:str, label_idx:int=11) -> dict:
+
+class Landmark():
+    def __init__(self, name: list):
+        self.name = self.regulate_landmark_label(name)
+
+    @set
+    def value(self, value: np.ndarray):
+        self.value_2D = value
+
+    def regulate_landmark_label(name: list, name_format: str) -> list:
+        '''
+        rename the label name of the landmarks based on the source label template and the target label template
+
+        Args:
+        ------
+        name: list, the name of the landmarks with certain format
+        name_format: str, the format of the name, e.g. 'r_sps', 'l_sps', l stands for left, r stands for right, sps stands for sacroiliac point
+
+        Returns:
+        --------
+        name: list
+        '''
+        if name_format[1] == '_':
+            anatomy_name = name.split("_")
+            target_label_name = ''.join(
+                anatomy_name[1:-2:-1]).upper() + '-' + ''.join(anatomy_name[0])
+            print(target_label_name)
+
+        elif name_format[1] == '-':
+            # anatomy_name = src_label_name.split("-")
+            pass  # TODO
+
+        return target_label_name
+
+    def get_value(mode: str) -> dict:
+        '''
+        get the value of the landmarks for a certain mode
+
+        Args:
+        ------
+        mode: str,  the order and the format of the landmarks,
+                    e.g. 'synthex' stands for the synthex ways of labeling the landmarks
+
+
+        Returns:
+        --------
+        landmarks: dict,    a dictionary with keys: 'landmarks_name', 'landmarks_values'
+        '''
+        if mode == 'synthex':
+            pass
+
+        elif mode == 'xreg':
+            pass
+
+        elif mode == 'other':
+            pass
+
+        else:
+            print('The mode is not supported yet')
+        pass
+
+    pass
+
+
+def get_3d_landmarks(source_file_path: str, source_file_type: str, label_idx: int = 11) -> dict:
     '''
     get 3d landmarks from a file with specified suffix
     and return a numpy array
-    
+
     Params:
     -------
     source_file_path: str
@@ -22,7 +86,7 @@ def get_3d_landmarks(source_file_path :str, source_file_type:str, label_idx:int=
         the index of the tag "label" in the fcsv file, 
         this can be found on the third line of the fcsv file
         it corresponds to the index of the landmarks name in the fcsv file
-    
+
     Returns:
     --------
     a dictionary with keys: 'landmarks_name', 'landmarks_info'
@@ -30,11 +94,11 @@ def get_3d_landmarks(source_file_path :str, source_file_type:str, label_idx:int=
 
     if source_file_type == 'fcsv':
         # read the fcsv file
-        landmarks = {} # a dictionary to store all the information of the landmarks
-        header = [] # a list to store the header of the fcsv file
+        landmarks = {}  # a dictionary to store all the information of the landmarks
+        header = []  # a list to store the header of the fcsv file
         with open(source_file_path, 'r') as f:
             lines = f.readlines()
-        
+
         for line in lines:
             if line[0] == '#':
                 header.append(line)
@@ -45,19 +109,19 @@ def get_3d_landmarks(source_file_path :str, source_file_type:str, label_idx:int=
                 landmarks_param = line.split(',')[1:11]
                 # landmarks_param = np.asarray(landmarks_param, dtype=np.float32)
 
-                landmarks[landmarks_name] = landmarks_param 
+                landmarks[landmarks_name] = landmarks_param
         # get the landmarks name
         landmarks['header'] = header
-    
+
     elif source_file_type == 'txt':
-        pass # TODO
+        pass  # TODO
     elif source_file_type == 'csv':
-        pass # TODO
+        pass  # TODO
 
     return landmarks
-    
 
-def write_3d_landmarks_xreg(output_file_path:str, landmark_info:dict):
+
+def write_3d_landmarks_xreg(output_file_path: str, landmark_info: dict):
     '''
     write the 3d landmarks to a file with specified suffix
     '''
@@ -66,7 +130,8 @@ def write_3d_landmarks_xreg(output_file_path:str, landmark_info:dict):
 
     for key in landmark_info.keys():
         if key == 'header':
-            for header in landmark_info['header']: output_fcsv_header += header
+            for header in landmark_info['header']:
+                output_fcsv_header += header
 
         else:
             # if the landmark's name is in lower case, convert it to upper case
@@ -74,15 +139,17 @@ def write_3d_landmarks_xreg(output_file_path:str, landmark_info:dict):
 
             # put the landmarks info into a string
             # ','.join() is used to convert a list to a string with ',' as the separator
-            output_fcsv_value += ',' + ','.join(landmark_info[key]) + ',' + label +', , \n'
+            output_fcsv_value += ',' + \
+                ','.join(landmark_info[key]) + ',' + label + ', , \n'
 
-    with open(output_file_path,'w') as f:
+    with open(output_file_path, 'w') as f:
         f.write(output_fcsv_header)
         f.write(output_fcsv_value)
 
     f.close()
 
-def regulate_landmark_label(src_label_name:str, src_label_template:str='r_sps', target_label_template:str='SPS-r') -> str:
+
+def regulate_landmark_label(src_label_name: str, src_label_template: str = 'r_sps', target_label_template: str = 'SPS-r') -> str:
     '''
     rename the label name of the landmarks based on the source label template and the target label template
 
@@ -94,22 +161,24 @@ def regulate_landmark_label(src_label_name:str, src_label_template:str='r_sps', 
         the template of the source label, e.g. 'r_sps', 'l_sps', l stands for left, r stands for right, sps stands for sacroiliac point
     target_label_template: str
         the template of the target label, e.g. 'SPS-r', 'SPS-l'
-    
+
     Returns:
     --------
     target_label_name: str
         the name of the target label after regulation
     '''
-    if src_label_template[1] == '_': 
+    if src_label_template[1] == '_':
         anatomy_name = src_label_name.split("_")
-        target_label_name =  ''.join(anatomy_name[1:-2:-1]).upper() + '-' + ''.join(anatomy_name[0])
+        target_label_name = ''.join(
+            anatomy_name[1:-2:-1]).upper() + '-' + ''.join(anatomy_name[0])
         print(target_label_name)
 
-    elif src_label_template[1] == '-': 
+    elif src_label_template[1] == '-':
         # anatomy_name = src_label_name.split("-")
-        pass # TODO
+        pass  # TODO
 
     return target_label_name
+
 
 def run_xreg(runOptions: str):
     '''Call the executable file
@@ -123,32 +192,33 @@ def run_xreg(runOptions: str):
     Returns:
     --------
         None 
-      
+
     '''
 
     if runOptions == 'run_reg':
         print("run_reg is running ...")
 
-        result = subprocess.run([   "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
-                                    "data/pelvis.nii.gz",
-                                    "data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
-                                    "data/example1_1_pd_003.h5",
-                                    "result/regi_pose_example1_1_pd_003_proj0.h5",
-                                    "result/regi_debug_example1_1_pd_003_proj0_w_seg.h5",
-                                    "-s",
-                                    "data/pelvis_seg.nii.gz"], stdout=subprocess.PIPE)
+        result = subprocess.run(["bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
+                                 "data/pelvis.nii.gz",
+                                 "data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
+                                 "data/example1_1_pd_003.h5",
+                                 "result/regi_pose_example1_1_pd_003_proj0.h5",
+                                 "result/regi_debug_example1_1_pd_003_proj0_w_seg.h5",
+                                 "-s",
+                                 "data/pelvis_seg.nii.gz"], stdout=subprocess.PIPE)
 
         # Print the output of the executable file
         print(result.stdout.decode())
 
     elif runOptions == 'run_viz':
-        result = subprocess.run([   "bin/xreg-regi2d3d-replay",
-                                    "result/regi_debug_example1_1_pd_003_proj0_w_seg.h5",
-                                    "--video-fps",
-                                    "10",
-                                    "--proj-ds",
-                                    "0.5"], stdout=subprocess.PIPE)
+        result = subprocess.run(["bin/xreg-regi2d3d-replay",
+                                 "result/regi_debug_example1_1_pd_003_proj0_w_seg.h5",
+                                 "--video-fps",
+                                 "10",
+                                 "--proj-ds",
+                                 "0.5"], stdout=subprocess.PIPE)
         print(result.stdout.decode())
+
 
 def readh5(h5_path: str):
     '''Read the h5 filex`
@@ -160,7 +230,7 @@ def readh5(h5_path: str):
     Returns:
     --------
         None 
-      
+
     '''
     with h5py.File(h5_path, 'r') as f:
         # List all groups
@@ -181,10 +251,11 @@ def readh5(h5_path: str):
 
     # plt.imshow(image,'gray')
     # plt.show()
-    
+
     f.close()
 
     return image
+
 
 def read_xray_dicom(path, to_32_bit=False, voi_lut=True, fix_monochrome=True):
     '''
@@ -196,14 +267,13 @@ def read_xray_dicom(path, to_32_bit=False, voi_lut=True, fix_monochrome=True):
         path to the dicom file
         voi_lut: bool
         fix_monochrome: bool, if True, invert the image if PhotometricInterpretation is MONOCHROME1
-    
+
     Returns:
     --------
     image: numpy array
         the pixel_array of the x-ray image
     '''
     dicom = pydicom.read_file(path)
-
 
     if voi_lut:
         image = apply_voi_lut(dicom.pixel_array, dicom)
@@ -218,6 +288,7 @@ def read_xray_dicom(path, to_32_bit=False, voi_lut=True, fix_monochrome=True):
 
     return image
 
+
 def read_2d_landmarks(landmarks_dir: str) -> pd.DataFrame:
     '''
     Read the 2D landmarks from the csv file
@@ -226,14 +297,14 @@ def read_2d_landmarks(landmarks_dir: str) -> pd.DataFrame:
     -------
     landmarks_dir: str
         path to the directory of the landmarks
-    
+
     Returns:
     --------
     landmarks: DataFrame
         the 2D landmarks
     '''
     landmarks = pd.read_csv(landmarks_dir)
-    landmarks = landmarks.drop(columns=['pat','proj','time'], axis=1)
+    landmarks = landmarks.drop(columns=['pat', 'proj', 'time'], axis=1)
 
     return landmarks
 
@@ -241,7 +312,7 @@ def read_2d_landmarks(landmarks_dir: str) -> pd.DataFrame:
 def generate_xreg_input(xray_dir: str, landmarks_dir: str, output_dir: str):
     '''
     Generate the input files for xreg
-    
+
     Params:
     -------
     xray_dir: str
@@ -254,7 +325,7 @@ def generate_xreg_input(xray_dir: str, landmarks_dir: str, output_dir: str):
     Returns:
     --------
         None 
-      
+
     '''
     # read the x-ray image
     xray_image = read_xray_dicom(xray_dir)
@@ -276,58 +347,80 @@ def generate_xreg_input(xray_dir: str, landmarks_dir: str, output_dir: str):
                 # print(dataset)
 
                 if dataset == 'pixels':
-                    h5_file['proj-000'][key].create_dataset(dataset, data=xray_image, dtype=h5_template['proj-000'][key][dataset].dtype)
+                    h5_file['proj-000'][key].create_dataset(
+                        dataset, data=xray_image, dtype=h5_template['proj-000'][key][dataset].dtype)
                 else:
-                    h5_file['proj-000'][key].create_dataset(dataset, data=h5_template['proj-000'][key][dataset][...], dtype=h5_template['proj-000'][key][dataset].dtype)
-            
+                    h5_file['proj-000'][key].create_dataset(dataset, data=h5_template['proj-000']
+                                                            [key][dataset][...], dtype=h5_template['proj-000'][key][dataset].dtype)
+
     h5_file['proj-000']['cam']['num-cols'][...] = xray_image.shape[1]
     h5_file['proj-000']['cam']['num-rows'][...] = xray_image.shape[0]
 
     h5_template.close()
 
     # write the 2d landmarks to the HDF5 file
-    lm_names_synthex = ['FH-l', 'FH-r', 'GSN-l', 'GSN-r', 'IOF-l', 'IOF-r', 'MOF-l', 'MOF-r', 'SPS-l', 'SPS-r', 'IPS-l', 'IPS-r', 'ASIS-l', 'ASIS-r'] # this is the order of the landmarks in the SyntheX dataset
+    lm_names_synthex = ['FH-l', 'FH-r', 'GSN-l', 'GSN-r', 'IOF-l', 'IOF-r', 'MOF-l', 'MOF-r', 'SPS-l', 'SPS-r',
+                        'IPS-l', 'IPS-r', 'ASIS-l', 'ASIS-r']  # this is the order of the landmarks in the SyntheX dataset
 
     for lms in h5_file['proj-000']['landmarks'].keys():
         lm_idx = lm_names_synthex.index(lms)
 
-        h5_file['proj-000']['landmarks'][lms][...] = np.reshape(np.asarray(landmarks_2d.iloc[lm_idx].values)[1:], (2,1))
+        h5_file['proj-000']['landmarks'][lms][...] = np.reshape(
+            np.asarray(landmarks_2d.iloc[lm_idx].values)[1:], (2, 1))
         # print(np.asarray(landmarks_2d.iloc[lm_idx].values))
         # h5_file['proj-000']['landmarks'][lms] = 0.0
 
-def read_ct_dicom(ct_path:str):
+
+def read_ct_dicom(ct_path: str):
     pass
 
 def dicom2h5(xray_path:str, h5_path:str, label_path:str):
+    def read_xray(path, voi_lut=True, fix_monochrome=True):
+        dicom = pydicom.read_file(path)
+
+        if voi_lut:
+            data = apply_voi_lut(dicom.pixel_array, dicom)
+        else:
+            data = dicom.pixel_array
+
+        if fix_monochrome and dicom.PhotometricInterpretation == "MONOCHROME1":
+            data = np.amax(data) - data
+
+        data = data - np.min(data)
+        data = data / np.max(data)
+        data = (data * 255).astype(np.uint8)
+        # data = cv2.resize(data, (360, 360), interpolation=cv2.INTER_AREA)
+        return data
 
     current_dir = os.getcwd()
     folder_path = "dicom_image"
 
-    file_names = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+    file_names = [f for f in os.listdir(
+        folder_path) if os.path.isfile(os.path.join(folder_path, f))]
     num_images = len(file_names)
 
     # Create an HDF5 file
     h5_file = h5py.File("synthex_input.h5", "w")
     h5_reallabel = h5py.File("synthex_label_input.h5", "w")
 
-    #create group for synthex_input.h5
+    # create group for synthex_input.h5
     grp = h5_file.create_group("01")
-    #create group for synthex_label_input.h5
+    # create group for synthex_label_input.h5
     label_grp = h5_reallabel.create_group("01")
 
-
-
-    #create landnames
-    names=h5_file.create_group("land-names")
+    # create landnames
+    names = h5_file.create_group("land-names")
     label_names = h5_reallabel.create_group("land-names")
     keys = [f'land-{i:02d}' for i in range(14)] + ['num-lands']
-    landmarks=['FH-l', 'FH-r', 'GSN-l', 'GSN-r', 'IOF-l', 'IOF-r', 'MOF-l', 'MOF-r', 'SPS-l', 'SPS-r', 'IPS-l', 'IPS-r', 'ASIS-l', 'ASIS-r',"14"]
+    landmarks = ['FH-l', 'FH-r', 'GSN-l', 'GSN-r', 'IOF-l', 'IOF-r', 'MOF-l',
+                 'MOF-r', 'SPS-l', 'SPS-r', 'IPS-l', 'IPS-r', 'ASIS-l', 'ASIS-r', "14"]
     for i, key in enumerate(keys):
         if i < len(landmarks):
             dtype_str = h5py.special_dtype(vlen=str)
             dataset_names = names.create_dataset(keys[i], (), dtype=dtype_str)
             dataset_names[()] = landmarks[i].encode('utf-8')
-            label_dataset_names = label_names.create_dataset(keys[i], (), dtype=dtype_str)
+            label_dataset_names = label_names.create_dataset(
+                keys[i], (), dtype=dtype_str)
             label_dataset_names[()] = landmarks[i].encode('utf-8')
 
     # Create the dataset with the appropriate shape
@@ -339,31 +432,37 @@ def dicom2h5(xray_path:str, h5_path:str, label_path:str):
         image_data = read_xray_dicom(file_path)
         dataset[i, :, :] = image_data
 
-    #currently unkown of camera paras, now just copy content from label_real.h5
+    # currently unkown of camera paras, now just copy content from label_real.h5
     real_label = h5py.File("real_label.h5", "r")
     # proj-paras part
     label_proj_paras = h5_reallabel.create_group("proj-params")
-    label_proj_paras = real_label["proj-params"] #copy group
-    #gt-poses part
+    label_proj_paras = real_label["proj-params"]  # copy group
+    # gt-poses part
     label_grp_gtpose = label_grp.create_group("gt-poses")
     for i, image_file in enumerate(file_names):
-            group_name = f"{i:03}"
-            label_grp_gtpose_content = real_label["01"]["gt-poses"][group_name]
-            gtpose_dataset = label_grp_gtpose.create_dataset(group_name,(4,4),dtype='f4')
-            gtpose_dataset[()] = label_grp_gtpose_content
+        group_name = f"{i:03}"
+        label_grp_gtpose_content = real_label["01"]["gt-poses"][group_name]
+        gtpose_dataset = label_grp_gtpose.create_dataset(
+            group_name, (4, 4), dtype='f4')
+        gtpose_dataset[()] = label_grp_gtpose_content
     # lands part
-    label_grp_lands = label_grp.create_dataset("lands",(num_images,2,14),dtype='f4')
+    label_grp_lands = label_grp.create_dataset(
+        "lands", (num_images, 2, 14), dtype='f4')
     label_grp_lands[()] = real_label["01"]["lands"][0:num_images]
     # segs part
-    label_grp_segs = label_grp.create_dataset("segs",(num_images,360,360),dtype="|u1")
+    label_grp_segs = label_grp.create_dataset(
+        "segs", (num_images, 360, 360), dtype="|u1")
     label_grp_segs[()] = real_label["01"]["segs"][0:num_images]
+
+
         
     # Close the HDF5 file to save changes
     h5_file.close()
     real_label.close()
     h5_reallabel.close()
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     # source_file_path = 'data/case-100114/landmarks.fcsv'
     # source_file_type = 'fcsv'
     # lm_3d = get_3d_landmarks(source_file_path, source_file_type)
@@ -381,5 +480,3 @@ if __name__=='__main__':
     # print(lm_names_synthex.index('GSN-l'))
 
     generate_xreg_input('data/x_ray1.dcm', 'data/own_data.csv', 'data/test.h5')
-
-
