@@ -29,6 +29,14 @@ class XregSlover(RegistrationSolver):
         self.landmarks_2D = landmarks_2D
         self.landmarks_3D = landmarks_3D
 
+    def load(self, image_path_load: str, ct_path_load: str, landmarks_2d_path: str, landmarks_3d_path: str):
+        image_load = read_xray_dicom(image_path_load)
+        landmarks_3d = get_3d_landmarks(
+            landmarks_3d_path, folder_type="fcsv", label_idx=11)
+        landmarks_2d = get_2d_landmarks(landmarks_2d_path)
+
+        return cls(image_load, ct_path_load, landmarks_3d)
+
     def solve(self, runOptions) -> np.ndarray:
         '''Call the executable file
         Params:
