@@ -8,13 +8,39 @@ import pandas as pd
 import os
 
 
-class Landmark():
-    def __init__(self, name: list):
-        self.name = self.regulate_landmark_label(name)
+class LandmarkContainer():
+    def __init__(self, landmark: dict, name_format: str, type: str):
+        self.name = self.regulate_landmark_label(landmark.keys(), name_format)
 
-    @set
-    def value(self, value: np.ndarray):
-        self.value_2D = value
+    @classmethod
+    def load(cls, landmark_type: str, landmark_value: list, landmark_label: list, name_format: str):
+        '''
+        load the landmarks from a file with specified suffix
+        the landmarks can be 2d or 3d
+
+        Args:
+        ------
+        landmark_type: str, the type of the landmarks, e.g. '2d', '3d'
+        landmark_path: str, the path of the landmarks file
+
+        Returns:
+        --------
+        class instance
+
+        '''
+        landmark = {}
+        for i in range(landmark_label):
+            landmark[landmark_label[i]] = landmark_value[i]
+
+        if landmark_type == '2d':
+            pass
+        elif landmark_type == '3d':
+            pass
+        else:
+            raise ValueError(
+                "The type of the landmarks should be '2d' or '3d'")
+
+        return cls(landmark, name_format, landmark_type)
 
     def regulate_landmark_label(name: list, name_format: str) -> list:
         '''
@@ -374,7 +400,8 @@ def generate_xreg_input(xray_dir: str, landmarks_dir: str, output_dir: str):
 def read_ct_dicom(ct_path: str):
     pass
 
-def dicom2h5(xray_path:str, h5_path:str, label_path:str):
+
+def dicom2h5(xray_path: str, h5_path: str, label_path: str):
     def read_xray(path, voi_lut=True, fix_monochrome=True):
         dicom = pydicom.read_file(path)
 
@@ -454,8 +481,6 @@ def dicom2h5(xray_path:str, h5_path:str, label_path:str):
         "segs", (num_images, 360, 360), dtype="|u1")
     label_grp_segs[()] = real_label["01"]["segs"][0:num_images]
 
-
-        
     # Close the HDF5 file to save changes
     h5_file.close()
     real_label.close()
@@ -479,4 +504,12 @@ if __name__ == '__main__':
     # lm_names_synthex = ['FH-l', 'FH-r', 'GSN-l', 'GSN-r', 'IOF-l', 'IOF-r', 'MOF-l', 'MOF-r', 'SPS-l', 'SPS-r', 'IPS-l', 'IPS-r', 'ASIS-l', 'ASIS-r'] # this is the order of the landmarks in the SyntheX dataset
     # print(lm_names_synthex.index('GSN-l'))
 
-    generate_xreg_input('data/x_ray1.dcm', 'data/own_data.csv', 'data/test.h5')
+    # generate_xreg_input('data/x_ray1.dcm', 'data/own_data.csv', 'data/test.h5')
+
+    x = {}
+    x['a'] = 1
+    x['b'] = 2
+    x['c'] = 3
+    y = list(x.keys())  # convert dict_keys object to list
+    # print the first element of the dict_keys object
+    print(y[0])
