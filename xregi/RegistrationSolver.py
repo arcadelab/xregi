@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from utils import *
 from abc import ABC, abstractmethod
 
@@ -26,6 +27,7 @@ class RegistrationSolver(ABC):
 class XregSlover(RegistrationSolver):
     def __init__(self, image: np.ndarray, landmarks_2D: dict, landmarks_3D: dict):
         self.image = image
+        self.landmark = Landmark()
         self.landmarks_2D = landmarks_2D
         self.landmarks_3D = landmarks_3D
 
@@ -75,3 +77,22 @@ class XregSlover(RegistrationSolver):
                                      "--proj-ds",
                                      "0.5"], stdout=subprocess.PIPE)
             print(result.stdout.decode())
+
+    def get_2d_landmarks(self, landmarks_2d_path: str) -> dict:
+        '''Get 2D landmarks from the csv file
+        Params:
+        -------
+        landmarks_2d_path: str
+            Path to the csv file
+
+        Returns:
+        --------
+        landmarks_2d: dict[str, np.ndarray]
+            A dictionary of 2D landmarks
+        '''
+        landmarks_2d = {}
+        data_frame = pd.read_csv(landmarks_2d_path)
+        landmar_value = data_frame.drop(
+            columns=['pat', 'proj', 'time'], axis=1)
+
+        return landmarks_2d
