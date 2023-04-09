@@ -9,6 +9,9 @@ import os
 
 
 class LandmarkContainer():
+    # this class is used to store the landmarks
+    # the landmarks can be 2d or 3d
+
     def __init__(self, landmark: dict, name_format: str, type: str):
         self.name = self.regulate_landmark_label(landmark.keys(), name_format)
 
@@ -21,7 +24,8 @@ class LandmarkContainer():
         Args:
         ------
         landmark_type: str, the type of the landmarks, e.g. '2d', '3d'
-        landmark_path: str, the path of the landmarks file
+        landmark_value: list, the value of the landmarks
+        landmark_label: list, the label of the landmarks
 
         Returns:
         --------
@@ -55,14 +59,17 @@ class LandmarkContainer():
         --------
         name: list
         '''
-        if name_format[1] == '_':
+        if name_format[1] == '_':  # e.g. 'r_sps'
             anatomy_name = name.split("_")
             target_label_name = ''.join(
                 anatomy_name[1:-2:-1]).upper() + '-' + ''.join(anatomy_name[0])
             print(target_label_name)
 
-        elif name_format[1] == '-':
+        elif name_format[1] == '-':  # e.g. 'r-sps'
             # anatomy_name = src_label_name.split("-")
+            pass  # TODO
+
+        elif name_format[-2] == '_':  # e.g. 'sps_r'
             pass  # TODO
 
         return target_label_name
@@ -512,4 +519,4 @@ if __name__ == '__main__':
     x['c'] = 3
     y = list(x.keys())  # convert dict_keys object to list
     # print the first element of the dict_keys object
-    print(y[0])
+    print(y[-2])
