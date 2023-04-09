@@ -13,7 +13,9 @@ class LandmarkContainer():
     # the landmarks can be 2d or 3d
 
     def __init__(self, landmark: dict, name_format: str, type: str):
-        self.name = self.regulate_landmark_label(landmark.keys(), name_format)
+        self.name = self.regulate_landmark_label(
+            list(landmark.keys()), name_format)
+        self.value = list(landmark.values())
 
     @classmethod
     def load(cls, landmark_type: str, landmark_value: list, landmark_label: list, name_format: str):
@@ -74,7 +76,7 @@ class LandmarkContainer():
 
         return target_label_name
 
-    def get_value(mode: str) -> dict:
+    def get_landmark(mode: str = 'default') -> dict:
         '''
         get the value of the landmarks for a certain mode
 
@@ -94,9 +96,13 @@ class LandmarkContainer():
         elif mode == 'xreg':
             pass
 
-        elif mode == 'other':
+        elif mode == 'default':
             pass
 
+        elif mode == 'other':
+            # Define your own mode here
+
+            pass
         else:
             print('The mode is not supported yet')
         pass
@@ -514,9 +520,9 @@ if __name__ == '__main__':
     # generate_xreg_input('data/x_ray1.dcm', 'data/own_data.csv', 'data/test.h5')
 
     x = {}
-    x['a'] = 1
-    x['b'] = 2
-    x['c'] = 3
-    y = list(x.keys())  # convert dict_keys object to list
+    x['a'] = [1, 2]
+    x['b'] = [2, 3]
+    x['c'] = [3, 4]
+    y = list(x.values())  # convert dict_keys object to list
     # print the first element of the dict_keys object
     print(y[-2])
