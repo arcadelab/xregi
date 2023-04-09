@@ -6,6 +6,7 @@ from pydicom.pixel_data_handlers.util import apply_voi_lut
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
+import cv2
 
 
 class LandmarkContainer():
@@ -413,35 +414,28 @@ def generate_xreg_input(xray_dir: str, landmarks_dir: str, output_dir: str):
 def read_ct_dicom(ct_path: str):
     pass
 
+<<<<<<< HEAD
+def dicom2h5(xray_folder_path:str, label_path:str,output_path:str):
+=======
 
 def dicom2h5(xray_path: str, h5_path: str, label_path: str):
     def read_xray(path, voi_lut=True, fix_monochrome=True):
         dicom = pydicom.read_file(path)
+>>>>>>> 7b4b887d1df075bfba6abaa6ae2d3e39a7d39ebb
 
-        if voi_lut:
-            data = apply_voi_lut(dicom.pixel_array, dicom)
-        else:
-            data = dicom.pixel_array
 
-        if fix_monochrome and dicom.PhotometricInterpretation == "MONOCHROME1":
-            data = np.amax(data) - data
-
-        data = data - np.min(data)
-        data = data / np.max(data)
-        data = (data * 255).astype(np.uint8)
-        # data = cv2.resize(data, (360, 360), interpolation=cv2.INTER_AREA)
-        return data
-
-    current_dir = os.getcwd()
-    folder_path = "dicom_image"
+    # folder_path = "dicom_image"
+    folder_path = xray_folder_path
 
     file_names = [f for f in os.listdir(
         folder_path) if os.path.isfile(os.path.join(folder_path, f))]
     num_images = len(file_names)
 
+
+
     # Create an HDF5 file
-    h5_file = h5py.File("synthex_input.h5", "w")
-    h5_reallabel = h5py.File("synthex_label_input.h5", "w")
+    h5_file = h5py.File(os.path.join(output_path, "synthex_input.h5"), "w")
+    h5_reallabel = h5py.File(os.path.join(output_path, "synthex_label_input.h5"), "w")
 
     # create group for synthex_input.h5
     grp = h5_file.create_group("01")
@@ -468,12 +462,13 @@ def dicom2h5(xray_path: str, h5_path: str, label_path: str):
     dataset = grp.create_dataset("projs", dataset_shape, dtype='f4')
     # Store all images in the dataset
     for i, file_name in enumerate(file_names):
-        file_path = os.path.join(current_dir, folder_path, file_name)
+        file_path = os.path.join(folder_path, file_name)
         image_data = read_xray_dicom(file_path)
-        dataset[i, :, :] = image_data
+        resized_image_data = cv2.resize(image_data, (360, 360), interpolation=cv2.INTER_LINEAR)  # Add this line
+        dataset[i, :, :] = resized_image_data
 
     # currently unkown of camera paras, now just copy content from label_real.h5
-    real_label = h5py.File("real_label.h5", "r")
+    real_label = h5py.File(label_path, "r")
     # proj-paras part
     label_proj_paras = h5_reallabel.create_group("proj-params")
     label_proj_paras = real_label["proj-params"]  # copy group
@@ -498,7 +493,6 @@ def dicom2h5(xray_path: str, h5_path: str, label_path: str):
     h5_file.close()
     real_label.close()
     h5_reallabel.close()
-
 
 if __name__ == '__main__':
     # source_file_path = 'data/case-100114/landmarks.fcsv'

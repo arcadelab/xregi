@@ -1,7 +1,7 @@
 import numpy as np
 from utils import *
 from abc import ABC, abstractmethod
-
+from SyntheX.class_ensemble import ensemble
 
 class LandmarkDetector(ABC):
     '''
@@ -34,18 +34,24 @@ class SynthexDetector(LandmarkDetector):
         self.image = image
         self.landmarks = landmarks
 
-    def load_network(self, nn_path: str):
-        self.nets = []
-        pass
+    def load_network(self,args):
+        self.ensemble_seg = ensemble(args)
+        self.nets = self.ensemble_seg.load_nets()
 
     def load_data(self):
-        self.image
-        pass
+        self.ensemble_seg.save_data()
 
-    def detect(self) -> np.ndarray:
-        seg_dataset_ensemble(test_ds, self.nets, f, dev=dev,
-                             num_lands=num_lands, times=times, adv_loss=False)
+    def est_lands
+    
 
-        landmarks_2D = self.read_landmarks_h5(f)
 
-        return landmarks_2D
+    @classmethod
+    def load(clc,xray_folder_path,label_path,output_path,landmarks,pats):
+        dicom2h5(xray_folder_path, label_path,output_path)
+        landmarks = ['FH-l', 'FH-r', 'GSN-l', 'GSN-r', 'IOF-l', 'IOF-r', 'MOF-l',
+                 'MOF-r', 'SPS-l', 'SPS-r', 'IPS-l', 'IPS-r', 'ASIS-l', 'ASIS-r']
+        f = h5py.File((os.path.join(output_path, "synthex_input.h5"), "r"))
+        image = f[pats]["projs"]
+
+
+        return clc(None,None)
