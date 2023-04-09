@@ -40,12 +40,18 @@ class SynthexDetector(LandmarkDetector):
         self.ensemble_seg = ensemble(args)
         self.nets = self.ensemble_seg.load_nets()
 
-    def load_data(self): # save test_ds
-        self.ensemble_seg.save_data()
+    def savedata(self,input_data_file_path,input_label_file_path): # save test_ds
+        self.ensemble_seg.save_data(input_data_file_path,input_label_file_path)
 
     def est_lands(self):
         test_ds_path = self.ensemble_seg.dst_data_file_path
-        est_land_csv(test_ds_path)
+        subprocess.run([    "python",
+                    "SyntheX/est_land_csv.py",
+                    test_ds_path, # input_data_file_path
+                    "nn-heats",
+                    "--use-seg","nn-segs",
+                    "--pat", "1",  # patient ID
+                    "--out", "data/own_data.csv"]) # output_data_file_path
         
 
 
@@ -57,4 +63,4 @@ class SynthexDetector(LandmarkDetector):
         image = f[pats]["projs"]
 
 
-        return clc(None,None)
+        return clc(image,None)
