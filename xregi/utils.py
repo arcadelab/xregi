@@ -414,7 +414,6 @@ if __name__ == '__main__':
 
     # generate_xreg_input('data/x_ray1.dcm', 'data/own_data.csv', 'data/test.h5')
 
-
     # x = 'sps_l'
     # dicom2h5("data/xray", "data/real_label.h5", "data")
     pass

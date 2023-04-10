@@ -98,9 +98,7 @@ class ensemble():
         print('Length of testing dataset: {}'.format(len(test_ds)))
 
         print('opening destination file for writing')
-        self.dst_data_file_path = os.path.join(os.path.abspath(
-            os.path.dirname(__file__)), self.dst_data_file_path)
-        print(self.dst_data_file_path)
+       
         f = h5.File(self.dst_data_file_path, 'w')
 
         # save off the landmark names
