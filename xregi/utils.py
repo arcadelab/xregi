@@ -578,7 +578,7 @@ def read_ct_dicom(ct_path: str):
     pass
 
 
-def dicom2h5(xray_path: str, h5_path: str, label_path: str):
+def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     def read_xray(path, voi_lut=True, fix_monochrome=True):
         dicom = pydicom.read_file(path)
 
