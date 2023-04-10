@@ -9,8 +9,6 @@ class ensemble():
         self.args=args
         self.network_paths = self.args.nets
 
-        self.src_data_file_path = self.args.input_data_file_path
-        self.src_label_file_path = self.args.input_label_file_path
         self.dst_data_file_path = self.args.output_data_file_path
 
         self.rand = self.args.rand
@@ -83,7 +81,9 @@ class ensemble():
 
         return self.nets
     
-    def savedata(self):
+    def savedata(self,input_data_file_path,input_label_file_path):
+        self.src_data_file_path = input_data_file_path
+        self.src_label_file_path = input_label_file_path
         land_names = None
         if self.num_lands > 0:
             land_names = get_land_names_from_dataset(self.src_data_file_path)
