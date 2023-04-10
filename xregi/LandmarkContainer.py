@@ -13,7 +13,8 @@ class LandmarkContainer():
 
         '''
         self.type = landmark_type
-        self.landmark = landmark
+        self.landmark_name = list(landmark.keys())
+        self.landmark_value = list(landmark.values())
 
     @classmethod
     def load(cls, landmark_type: str, landmark_value: list, landmark_label: list):
@@ -48,7 +49,7 @@ class LandmarkContainer():
             raise ValueError(
                 "The type of the landmarks should be '2d' or '3d'")
 
-        return cls(landmark_label, landmark_type)
+        return cls(landmark_type, landmark)
 
     def regulate_landmark_label(self, names: list, name_format: str) -> list:
         '''
@@ -226,7 +227,7 @@ class LandmarkContainer():
         # print(target_label_name)
         return target_label_name
 
-    def get_landmark(mode: str = 'default') -> dict:
+    def get_landmark(self, mode: str = 'default') -> dict:
         '''
         get the value of the landmarks for a certain mode
 
@@ -240,13 +241,24 @@ class LandmarkContainer():
         --------
         landmarks: dict,    a dictionary with keys: 'landmarks_name', 'landmarks_values'
         '''
+        landmarks = {}
+
         if mode == 'synthex':
             template = 'FH-l'
+            name_modified = self.regulate_landmark_label(self.landmark_name, template)
+
+            for i in range(len(name_modified)):
+                landmarks[name_modified[i]] = self.landmark_value[i]
 
         elif mode == 'xreg':
-            pass
+            template = 'FH-l'
+            name_modified = self.regulate_landmark_label(self.landmark_name, template)
+
+            for i in range(len(name_modified)):
+                landmarks[name_modified[i]] = self.landmark_value[i]
 
         elif mode == 'default':
+            # TODO
             pass
 
         elif mode == 'other':
@@ -257,4 +269,28 @@ class LandmarkContainer():
             print('The mode is not supported yet')
         pass
 
-    pass
+        return landmarks
+
+if __name__ == '__main__':
+    x = {}
+    x['sps_l'] = [1, 2]
+    x['sps_r'] = [2, 3]
+    x['gsn_l'] = [3, 4]
+    x['gsn_r'] = [4, 5]
+    print()
+
+    lm = LandmarkContainer.load('2d', list(
+        x.values()), list(x.keys()))
+
+    for key in x.keys():
+        print(key)
+
+    template = 'r-FH'
+    test = lm.regulate_landmark_label(list(x.keys()), template)
+    print('original label: ', list(x.keys()))
+    print('template label: ', template)
+    print('modified label: ', test)
+    # y = list(x.keys())  # convert dict_keys object to list
+    # # print the first element of the dict_keys object
+    # print(y[-2])
+    # print(len(x)) 

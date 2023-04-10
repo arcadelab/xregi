@@ -414,24 +414,7 @@ if __name__ == '__main__':
 
     # generate_xreg_input('data/x_ray1.dcm', 'data/own_data.csv', 'data/test.h5')
 
-    # x = {}
-    # x['sps_l'] = [1, 2]
-    # x['sps_r'] = [2, 3]
-    # x['gsn_l'] = [3, 4]
-    # x['gsn_r'] = [4, 5]
 
-    # lm = LandmarkContainer.load('2d', list(
-    #     x.values()), list(x.keys()))
-
-    # template = 'r-FH'
-    # test = lm.regulate_landmark_label(list(x.keys()), template)
-    # print('original label: ', list(x.keys()))
-    # print('template label: ', template)
-    # print('modified label: ', test)
-    # # y = list(x.keys())  # convert dict_keys object to list
-    # # # print the first element of the dict_keys object
-    # # print(y[-2])
-    # # print(len(x))
     # x = 'sps_l'
     # dicom2h5("data/xray", "data/real_label.h5", "data")
     pass
