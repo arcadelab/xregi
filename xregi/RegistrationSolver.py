@@ -2,15 +2,11 @@ import numpy as np
 import pandas as pd
 import subprocess
 from utils import *
-import LandmarkContainer
+from LandmarkContainer import LandmarkContainer
 from abc import ABC, abstractmethod
 
 
 class RegistrationSolver(ABC):
-
-    @abstractmethod
-    def load(self):
-        pass
     
     @abstractmethod
     def solve(self) -> np.ndarray:
@@ -31,6 +27,9 @@ class RegistrationSolver(ABC):
 
 
 class XregSlover(RegistrationSolver):
+    '''
+    Solve 2d 3d registration problem using xreg
+    '''
     def __init__(self, image: np.ndarray, ct_path:str, landmarks_2D: dict, landmarks_3D: dict):
         self.image = image
         self.CT = ct_path # no need to load CT in the file, just use the path of it
@@ -41,16 +40,22 @@ class XregSlover(RegistrationSolver):
         current_path = os.path.abspath(os.path.dirname(__file__))
         self.temp_file_path = os.path.join(current_path,"data/xreg_input.h5")
 
-    def load(cls, image_path_load: str, ct_path_load: str, landmarks_2d_path: str, landmarks_3d_path: str):
+    @classmethod
+    def load(clc, image_path_load: str, ct_path_load: str, landmarks_2d_path: str, landmarks_3d_path: str):
         image_load = read_xray_dicom(image_path_load)
         # landmarks_3d = get_3d_landmarks(
         #     landmarks_3d_path, folder_type="fcsv", label_idx=11)
 
-        landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
+        landmarks_2d = clc.get_2d_landmarks(landmarks_2d_path)
 
-        return cls(image_load, ct_path_load, landmarks_2d, None)
+        return clc(image_load, ct_path_load, landmarks_2d, None)
 
     def generate_h5(self):
+        '''
+        Generate the h5 file for xreg
+        the h5 file contains x-ray image and 2d landmarks
+        '''
+
         h5_file = h5py.File(self.temp_file_path, "w")
         h5_file.create_dataset('num_projs', data=1, dtype='u8')
         h5_file.create_group("proj-000")
@@ -91,7 +96,7 @@ class XregSlover(RegistrationSolver):
 
     def solve(self, runOptions) -> np.ndarray:
         '''Call the executable file
-        Params:
+        Args:
         -------
         runOptions: str
             'run_reg' or 'run_viz' , 
@@ -128,7 +133,7 @@ class XregSlover(RegistrationSolver):
                                      "0.5"], stdout=subprocess.PIPE)
             print(result.stdout.decode())
 
-    def get_2d_landmarks(self, landmarks_path: str) -> dict:
+    def get_2d_landmarks(landmarks_path: str) -> dict:
         '''Get 2D landmarks from the csv file
         Params:
         -------
@@ -155,22 +160,36 @@ class XregSlover(RegistrationSolver):
             landmarks_2d[data_frame['land-name'][i]] = [data_frame['row'][i],data_frame['col'][i]]
 
         return landmarks_2d
+    
+
 
 
 if __name__ == '__main__':
-    image = np.ones((3,3))
+    # image = np.ones((3,3))
 
-    lm_2d = {}
-    lm_3d = {}
+    # lm_2d = {}
+    # lm_3d = {}
 
-    lm_2d['sps_l'] = [1, 2]
-    lm_2d['sps_r'] = [2, 3]
-    lm_3d['gsn_l'] = [3, 4]
-    lm_3d['gsn_r'] = [4, 5]
+    # lm_2d['sps_l'] = [1, 2]
+    # lm_2d['sps_r'] = [2, 3]
+    # lm_3d['gsn_l'] = [3, 4]
+    # lm_3d['gsn_r'] = [4, 5]
 
 
-    xreg = XregSlover(image,lm_2d,lm_3d)
-    x = xreg.get_2d_landmarks("data/own_data.csv")
-    print(x.values())
-                 
+    # xreg = XregSlover(image,lm_2d,lm_3d)
+    # x = xreg.get_2d_landmarks("data/own_data.csv")
+    # print(x.values())
+
+    reg_solver = XregSlover.load(image_path_load="data/x_ray1.dcm", ct_path_load="data/pelvis.nii.gz", landmarks_2d_path="data/own_data.csv",landmarks_3d_path=None)
+    
+    
+    # x = {}
+    # x['sps_l'] = [1, 2]
+    # x['sps_r'] = [2, 3]
+    # x['gsn_l'] = [3, 4]
+    # x['gsn_r'] = [4, 5]
+    # print()
+
+    # lm = LandmarkContainer.load('2d', list(
+    #     x.values()), list(x.keys()))
     
