@@ -1,5 +1,5 @@
 import numpy as np
-from utils import *
+from SyntheX.utils import *
 import pandas as pd
 from LandmarkDetector import SynthexDetector
 import LandmarkDetector

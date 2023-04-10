@@ -1,8 +1,9 @@
 import argparse
-from TransUNet.transunet import VisionTransformer as ViT_seg
-from TransUNet.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
-from dataset import *
-from util    import *
+from SyntheX.dataset import *
+from SyntheX.util import *
+from SyntheX.TransUNet.transunet import VisionTransformer as ViT_seg
+from SyntheX.TransUNet.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
+import os
 
 class ensemble():
     def __init__(self,args) -> None:
@@ -25,56 +26,58 @@ class ensemble():
 
     def loadnet(self) -> list:
         self.nets = []
-        for net_path in self.network_paths:
-            print('  loading state from disk for: {}'.format(net_path))
+        net_path = self.network_paths
+        print(net_path)
+        
+        print('  loading state from disk for: {}'.format(net_path))
 
-            state = torch.load(net_path, map_location=self.torch_map_loc)
+        state = torch.load(net_path, map_location=self.torch_map_loc)
 
-            print('  loading unet params from checkpoint state dict...')
-            num_classes         = state['num-classes']
-            unet_num_lvls       = state['depth']
-            unet_init_feats_exp = state['init-feats-exp']
-            unet_batch_norm     = state['batch-norm']
-            unet_padding        = state['padding']
-            unet_no_max_pool    = state['no-max-pool']
-            unet_use_res        = state['unet-use-res']
-            unet_block_depth    = state['unet-block-depth']
-            proj_unet_dim       = state['pad-img-size']
-            batch_size          = state['batch-size']
-            num_lands           = state['num-lands']
+        print('  loading unet params from checkpoint state dict...')
+        num_classes         = state['num-classes']
+        unet_num_lvls       = state['depth']
+        unet_init_feats_exp = state['init-feats-exp']
+        unet_batch_norm     = state['batch-norm']
+        unet_padding        = state['padding']
+        unet_no_max_pool    = state['no-max-pool']
+        unet_use_res        = state['unet-use-res']
+        unet_block_depth    = state['unet-block-depth']
+        proj_unet_dim       = state['pad-img-size']
+        batch_size          = state['batch-size']
+        num_lands           = state['num-lands']
 
-            print('             num. classes: {}'.format(num_classes))
-            print('                    depth: {}'.format(unet_num_lvls))
-            print('        init. feats. exp.: {}'.format(unet_init_feats_exp))
-            print('              batch norm.: {}'.format(unet_batch_norm))
-            print('         unet do pad img.: {}'.format(unet_padding))
-            print('              no max pool: {}'.format(unet_no_max_pool))
-            print('    reflect pad img. dim.: {}'.format(proj_unet_dim))
-            print('            unet use res.: {}'.format(unet_use_res))
-            print('         unet block depth: {}'.format(unet_block_depth))
-            print('               batch size: {}'.format(batch_size))
-            print('              num. lands.: {}'.format(num_lands))
+        print('             num. classes: {}'.format(num_classes))
+        print('                    depth: {}'.format(unet_num_lvls))
+        print('        init. feats. exp.: {}'.format(unet_init_feats_exp))
+        print('              batch norm.: {}'.format(unet_batch_norm))
+        print('         unet do pad img.: {}'.format(unet_padding))
+        print('              no max pool: {}'.format(unet_no_max_pool))
+        print('    reflect pad img. dim.: {}'.format(proj_unet_dim))
+        print('            unet use res.: {}'.format(unet_use_res))
+        print('         unet block depth: {}'.format(unet_block_depth))
+        print('               batch size: {}'.format(batch_size))
+        print('              num. lands.: {}'.format(num_lands))
 
-            print('    creating network')
-            vit_name = 'R50-ViT-B_16'
-            vit_patches_size = 16
-            img_size = proj_unet_dim
-            config_vit = CONFIGS_ViT_seg['R50-ViT-B_16']
-            config_vit.n_classes = num_classes
-            config_vit.n_skip = 3
-            if vit_name.find('R50') != -1:
-                config_vit.patches.grid = (int(img_size / vit_patches_size), int(img_size / vit_patches_size))
-            net = ViT_seg(config_vit, img_size=img_size, num_classes=config_vit.n_classes,
-                        batch_norm=unet_batch_norm, padding=unet_padding, n_classes=num_classes, num_lands=num_lands)
+        print('    creating network')
+        vit_name = 'R50-ViT-B_16'
+        vit_patches_size = 16
+        img_size = proj_unet_dim
+        config_vit = CONFIGS_ViT_seg['R50-ViT-B_16']
+        config_vit.n_classes = num_classes
+        config_vit.n_skip = 3
+        if vit_name.find('R50') != -1:
+            config_vit.patches.grid = (int(img_size / vit_patches_size), int(img_size / vit_patches_size))
+        net = ViT_seg(config_vit, img_size=img_size, num_classes=config_vit.n_classes,
+                    batch_norm=unet_batch_norm, padding=unet_padding, n_classes=num_classes, num_lands=num_lands)
 
-            net.load_state_dict(state['model-state-dict'])
+        net.load_state_dict(state['model-state-dict'])
 
-            del state
+        del state
 
-            print('  moving network to device...')
-            net.to(self.dev)
+        print('  moving network to device...')
+        net.to(self.dev)
 
-            self.nets.append(net)
+        self.nets.append(net)
         self.num_classes = num_classes
         self.proj_unet_dim = proj_unet_dim
         self.num_lands =num_lands
@@ -95,6 +98,9 @@ class ensemble():
         print('Length of testing dataset: {}'.format(len(test_ds)))
 
         print('opening destination file for writing')
+        self.dst_data_file_path = os.path.join(os.path.abspath(
+            os.path.dirname(__file__)), self.dst_data_file_path)
+        print(self.dst_data_file_path)
         f = h5.File(self.dst_data_file_path, 'w')
 
         # save off the landmark names

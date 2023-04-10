@@ -581,10 +581,14 @@ def read_ct_dicom(ct_path: str):
 def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
 
     # folder_path = "dicom_image"
-    folder_path = xray_folder_path
+    current_path = os.path.abspath(os.path.dirname(__file__))
+
+    xray_folder_path = os.path.join(current_path, xray_folder_path)
+    label_path = os.path.join(current_path, label_path)
+    output_path = os.path.join(current_path, output_path)
 
     file_names = [f for f in os.listdir(
-        folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+        xray_folder_path) if os.path.isfile(os.path.join(xray_folder_path, f))]
     num_images = len(file_names)
 
     # Create an HDF5 file
@@ -617,7 +621,7 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     dataset = grp.create_dataset("projs", dataset_shape, dtype='f4')
     # Store all images in the dataset
     for i, file_name in enumerate(file_names):
-        file_path = os.path.join(folder_path, file_name)
+        file_path = os.path.join(xray_folder_path, file_name)
         image_data = read_xray_dicom(file_path)
         resized_image_data = cv2.resize(
             image_data, (360, 360), interpolation=cv2.INTER_LINEAR)  # Add this line
@@ -688,4 +692,10 @@ if __name__ == '__main__':
     # # # print the first element of the dict_keys object
     # # print(y[-2])
     # # print(len(x))
+<<<<<<< HEAD
     x = 'sps_l'
+=======
+    # x = 'sps_l'
+    # dicom2h5("data/xray", "data/real_label.h5", "data")
+    pass
+>>>>>>> 1c910e822edb74dacfe27e6ea04dc8b3ec47d654

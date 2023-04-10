@@ -1,29 +1,37 @@
 import argparse
 
-from TransUNet.transunet import VisionTransformer as ViT_seg
-from TransUNet.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
-from dataset import *
-from util    import *
+from SyntheX.TransUNet.transunet import VisionTransformer as ViT_seg
+from SyntheX.TransUNet.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
+from SyntheX.dataset import *
+from SyntheX.util import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run ensemble segmentation and heatmap estimation for hip imaging application.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('input_data_file_path', help='Path to the datafile containing projections', type=str)
+    parser.add_argument('input_data_file_path',
+                        help='Path to the datafile containing projections', type=str)
 
-    parser.add_argument('input_label_file_path', help='Path to the datafile containing groundtruth segmentations and landmarks', type=str)
+    parser.add_argument('input_label_file_path',
+                        help='Path to the datafile containing groundtruth segmentations and landmarks', type=str)
 
-    parser.add_argument('output_data_file_path', help='Path to the output datafile containing segmentations', type=str)
+    parser.add_argument('output_data_file_path',
+                        help='Path to the output datafile containing segmentations', type=str)
 
-    parser.add_argument('--nets', help='Paths to the networks used to perform segmentation - specify this after the positional arguments', type=str, nargs='+')
+    parser.add_argument(
+        '--nets', help='Paths to the networks used to perform segmentation - specify this after the positional arguments', type=str, nargs='+')
 
-    parser.add_argument('--pats', help='comma delimited list of patient IDs used for testing', type=str)
+    parser.add_argument(
+        '--pats', help='comma delimited list of patient IDs used for testing', type=str)
 
-    parser.add_argument('--no-gpu', help='Only use CPU - do not use GPU even if it is available', action='store_true')
+    parser.add_argument(
+        '--no-gpu', help='Only use CPU - do not use GPU even if it is available', action='store_true')
 
-    parser.add_argument('--times', help='Path to file storing runtimes for each image', type=str, default='')
+    parser.add_argument(
+        '--times', help='Path to file storing runtimes for each image', type=str, default='')
 
-    parser.add_argument('--rand', help='Run test on rand data', action='store_true')
+    parser.add_argument(
+        '--rand', help='Run test on rand data', action='store_true')
 
     args = parser.parse_args()
 
@@ -36,7 +44,8 @@ if __name__ == '__main__':
     rand = args.rand
 
     assert(args.pats is not None)
-    test_pats = [i for i in args.pats.split(',')] if rand else [int(i) for i in args.pats.split(',')]
+    test_pats = [i for i in args.pats.split(',')] if rand else [
+        int(i) for i in args.pats.split(',')]
     assert(len(test_pats) > 0)
 
     cpu_dev = torch.device('cpu')
@@ -56,17 +65,17 @@ if __name__ == '__main__':
         state = torch.load(net_path, map_location=torch_map_loc)
 
         print('  loading unet params from checkpoint state dict...')
-        num_classes         = state['num-classes']
-        unet_num_lvls       = state['depth']
+        num_classes = state['num-classes']
+        unet_num_lvls = state['depth']
         unet_init_feats_exp = state['init-feats-exp']
-        unet_batch_norm     = state['batch-norm']
-        unet_padding        = state['padding']
-        unet_no_max_pool    = state['no-max-pool']
-        unet_use_res        = state['unet-use-res']
-        unet_block_depth    = state['unet-block-depth']
-        proj_unet_dim       = state['pad-img-size']
-        batch_size          = state['batch-size']
-        num_lands           = state['num-lands']
+        unet_batch_norm = state['batch-norm']
+        unet_padding = state['padding']
+        unet_no_max_pool = state['no-max-pool']
+        unet_use_res = state['unet-use-res']
+        unet_block_depth = state['unet-block-depth']
+        proj_unet_dim = state['pad-img-size']
+        batch_size = state['batch-size']
+        num_lands = state['num-lands']
 
         print('             num. classes: {}'.format(num_classes))
         print('                    depth: {}'.format(unet_num_lvls))
@@ -88,7 +97,8 @@ if __name__ == '__main__':
         config_vit.n_classes = num_classes
         config_vit.n_skip = 3
         if vit_name.find('R50') != -1:
-            config_vit.patches.grid = (int(img_size / vit_patches_size), int(img_size / vit_patches_size))
+            config_vit.patches.grid = (
+                int(img_size / vit_patches_size), int(img_size / vit_patches_size))
         net = ViT_seg(config_vit, img_size=img_size, num_classes=config_vit.n_classes,
                       batch_norm=unet_batch_norm, padding=unet_padding, n_classes=num_classes, num_lands=num_lands)
 
@@ -107,7 +117,8 @@ if __name__ == '__main__':
         assert(len(land_names) == num_lands)
 
     print('initializing testing dataset')
-    test_ds = get_rand_dataset(src_data_file_path, src_label_file_path, test_pats, num_classes=num_classes, pad_img_dim=proj_unet_dim, no_seg=True) if rand else get_dataset(src_data_file_path, src_label_file_path, test_pats, num_classes=num_classes, pad_img_dim=proj_unet_dim, no_seg=True, valid=True)
+    test_ds = get_rand_dataset(src_data_file_path, src_label_file_path, test_pats, num_classes=num_classes, pad_img_dim=proj_unet_dim, no_seg=True) if rand else get_dataset(
+        src_data_file_path, src_label_file_path, test_pats, num_classes=num_classes, pad_img_dim=proj_unet_dim, no_seg=True, valid=True)
 
     print('Length of testing dataset: {}'.format(len(test_ds)))
 
@@ -125,7 +136,8 @@ if __name__ == '__main__':
     times = []
 
     print('running network on projections')
-    seg_dataset_ensemble(test_ds, nets, f, dev=dev, num_lands=num_lands, times=times, adv_loss=False)
+    seg_dataset_ensemble(test_ds, nets, f, dev=dev,
+                         num_lands=num_lands, times=times, adv_loss=False)
 
     print('closing file...')
     f.flush()
