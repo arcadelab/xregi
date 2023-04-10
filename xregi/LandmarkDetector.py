@@ -1,11 +1,15 @@
 import numpy as np
 from utils import *
 from abc import ABC, abstractmethod
+<<<<<<< HEAD
+from SyntheX.class_ensemble import ensemble
+from SyntheX.est_land_csv import est_land_csv
+=======
 # from SyntheX.class_ensemble import ensemble
 # from SyntheX.est_land_csv import est_land_csv
 import SyntheX.class_ensemble as class_ensemble
+>>>>>>> 1c910e822edb74dacfe27e6ea04dc8b3ec47d654
 import argparse
-
 
 class LandmarkDetector(ABC):
     '''
@@ -37,6 +41,15 @@ class SynthexDetector(LandmarkDetector):
     def __init__(self, image: np.ndarray, landmarks: dict):
         self.image = image
         self.landmarks = landmarks
+<<<<<<< HEAD
+        
+    def load_data(self,args):
+        self.ensemble_seg = ensemble(args)
+        self.nets = self.ensemble_seg.load_nets()
+
+    def savedata(self,input_data_file_path,input_label_file_path): # save test_ds
+        self.ensemble_seg.save_data(input_data_file_path,input_label_file_path)
+=======
 
     def load_data(self, args):
         self.current_path = os.path.abspath(os.path.dirname(__file__))
@@ -55,8 +68,10 @@ class SynthexDetector(LandmarkDetector):
             self.current_path, input_label_file_path)
         self.ensemble_seg.savedata(
             input_data_file_path, input_label_file_path)
+>>>>>>> 1c910e822edb74dacfe27e6ea04dc8b3ec47d654
 
     def detect(self):
+<<<<<<< HEAD
         subprocess.run(["python",
                         "SyntheX/est_land_csv.py",
                         self.output_data_file_path,  # input_data_file_path
@@ -64,20 +79,35 @@ class SynthexDetector(LandmarkDetector):
                         "--use-seg", "nn-segs",
                         "--pat", "1",  # patient ID
                         "--out", "data/own_data.csv"])  # output_data_file_path
+=======
+        test_ds_path = self.ensemble_seg.dst_data_file_path
+        subprocess.run([    "python",
+                    "SyntheX/est_land_csv.py",
+                    test_ds_path, # input_data_file_path
+                    "nn-heats",
+                    "--use-seg","nn-segs",
+                    "--pat", "1",  # patient ID
+                    "--out", "data/own_data.csv"]) # output_data_file_path
+        
+        
+>>>>>>> a7bcea0b4ac72d3274f48c681aa8634ce8597660
+
 
     @classmethod
-    def load(clc, xray_folder_path, label_path, output_path, pats):
-
-        dicom2h5(xray_folder_path, label_path, output_path)
+    def load(clc,xray_folder_path,label_path,output_path,pats):
+        dicom2h5(xray_folder_path, label_path,output_path)
 
         output_path = os.path.join(os.path.abspath(
             os.path.dirname(__file__)), output_path)
         f = h5py.File(os.path.join(output_path, "synthex_input.h5"), "r")
         image = f[pats]["projs"]
 
-        return clc(image, None)
 
+        return clc(image,None)
+    
 
+<<<<<<< HEAD
+=======
 if __name__ == "__main__":
     syn = SynthexDetector.load(
         "data/xray", "data/real_label.h5", "data", "01")
@@ -117,3 +147,4 @@ if __name__ == "__main__":
 
     # threshold = args.threshold
     # syn.load_network()
+>>>>>>> 1c910e822edb74dacfe27e6ea04dc8b3ec47d654
