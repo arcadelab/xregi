@@ -13,7 +13,7 @@ import torch.nn as nn
 
 from torch.utils.data import DataLoader
 
-from dice import *
+from SyntheX.dice import *
 
 # For Adversarial Discriminative Domain Adaptation
 

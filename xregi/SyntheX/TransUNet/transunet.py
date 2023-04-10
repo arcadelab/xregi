@@ -16,10 +16,10 @@ import numpy as np
 from torch.nn import CrossEntropyLoss, Dropout, Softmax, Linear, Conv2d, LayerNorm
 from torch.nn.modules.utils import _pair
 from scipy import ndimage
-from TransUNet import vit_seg_configs as configs
-from TransUNet.vit_seg_modeling_resnet_skip import ResNetV2
+from SyntheX.TransUNet import vit_seg_configs as configs
+from SyntheX.TransUNet.vit_seg_modeling_resnet_skip import ResNetV2
 
-import util
+import SyntheX.util
 
 logger = logging.getLogger(__name__)
 
@@ -499,7 +499,8 @@ class VisionTransformer(nn.Module):
             if self.lands_block is not None:
                 x = self.lands_block(x)
 
-            x = torch.cat((x, util.center_crop(logits, x.shape)), dim=1)
+            x = torch.cat(
+                (x, SyntheX.util.center_crop(logits, x.shape)), dim=1)
 
             heat_maps = self.lands_1x1(x)
 
