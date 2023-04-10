@@ -56,7 +56,6 @@ class SynthexDetector(LandmarkDetector):
             input_data_file_path, input_label_file_path)
 
     def detect(self):
-<<<<<<< HEAD
         subprocess.run(["python",
                         "SyntheX/est_land_csv.py",
                         self.output_data_file_path,  # input_data_file_path
@@ -64,18 +63,6 @@ class SynthexDetector(LandmarkDetector):
                         "--use-seg", "nn-segs",
                         "--pat", "1",  # patient ID
                         "--out", "data/own_data.csv"])  # output_data_file_path
-=======
-        test_ds_path = self.ensemble_seg.dst_data_file_path
-        subprocess.run([    "python",
-                    "SyntheX/est_land_csv.py",
-                    test_ds_path, # input_data_file_path
-                    "nn-heats",
-                    "--use-seg","nn-segs",
-                    "--pat", "1",  # patient ID
-                    "--out", "data/own_data.csv"]) # output_data_file_path
-        
-        
->>>>>>> a7bcea0b4ac72d3274f48c681aa8634ce8597660
 
 
     @classmethod
