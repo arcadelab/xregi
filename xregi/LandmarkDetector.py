@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 # from SyntheX.class_ensemble import ensemble
 # from SyntheX.est_land_csv import est_land_csv
 import SyntheX.class_ensemble as class_ensemble
+from SyntheX.est_land_csv import est_land_csv
 import argparse
 
 
@@ -56,14 +57,8 @@ class SynthexDetector(LandmarkDetector):
         self.ensemble_seg.savedata(
             input_data_file_path, input_label_file_path)
 
-    def detect(self):
-        subprocess.run(["python",
-                        "SyntheX/est_land_csv.py",
-                        self.output_data_file_path,  # input_data_file_path
-                        "nn-heats",
-                        "--use-seg", "nn-segs",
-                        "--pat", "1",  # patient ID
-                        "--out", "data/own_data.csv"])  # output_data_file_path
+    def detect(self, args2):
+        est_land_csv(args2)
 
     @classmethod
     def load(clc, xray_folder_path, label_path, output_path, pats):
@@ -95,7 +90,22 @@ if __name__ == "__main__":
 
     syn.load_data(args)
     syn.savedata(args.input_data_file_path, args.input_label_file_path)
-    syn.detect()
+    args2 = argparse.Namespace()
+    args2.heat_file_path = syn.output_data_file_path
+    args2.heats_group_path = "nn-heats"
+    args2.out = "data/own_data.csv"
+    args2.out = os.path.join(
+        syn.current_path, args2.out)
+    args2.pat = "01"
+    args2.use_seg = "nn-segs"
+    args2.rand = True
+    args2.hm_lvl = True
+    args2.ds_factor = 4
+    args2.no_hdr = True
+    args2.use_seg = ''
+    args2.threshold = 2
+
+    syn.detect(args2)
 
     # args.heat_file_path = "data/"
     # args.heats_group_path = "nn-heats"
