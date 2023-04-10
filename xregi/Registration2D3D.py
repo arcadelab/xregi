@@ -2,8 +2,7 @@ import numpy as np
 from utils import *
 import pandas as pd
 from LandmarkDetector import SynthexDetector
-import LandmarkDetector
-import RegistrationSolver
+from RegistrationSolver import XregSlover
 import argparse
 
 
@@ -15,6 +14,11 @@ class Registration2D3D:
         self.intrinsic = intrinsic
 
     def select_detector(self, detector: str, path: dict, args):
+        '''
+        Select the detector type and instantiate it
+
+
+        '''
         self.path = path
         if detector == 'SyntheX':
             self.syn = SynthexDetector.load(
@@ -28,11 +32,10 @@ class Registration2D3D:
 
     def run_synthex(self, args2):
         self.syn.detect(args2)
-        pass
 
     def run_xreg(self):
-
-        pass
+        self.xreg = XregSlover()
+        self.xreg.solve(runOptions='run_reg')
 
     @classmethod
     def load(cls, image_path_load: str, ct_path_load: str, landmarks_3d_path: str, intrinsic_load: np.ndarray):
