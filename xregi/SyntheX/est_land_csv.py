@@ -5,38 +5,41 @@ from SyntheX.util import *
 
 from ncc import ncc_2d
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='estimate landmark locations and write to CSV',
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+# if __name__ == '__main__':
 
-    parser.add_argument(
-        'heat_file_path', help='Path to dataset file containing labelings.', type=str)
 
-    parser.add_argument('heats_group_path',
-                        help='H5 group path to heat maps', type=str)
+def est_land_csv(args):
+    # parser = argparse.ArgumentParser(description='estimate landmark locations and write to CSV',
+    #                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('--out', help='output image path',
-                        type=str, default='yy_lands_est.csv')
+    # parser.add_argument(
+    #     'heat_file_path', help='Path to dataset file containing labelings.', type=str)
 
-    parser.add_argument('--pat', help='patient index', type=str)
+    # parser.add_argument('heats_group_path',
+    #                     help='H5 group path to heat maps', type=str)
 
-    parser.add_argument(
-        '--use-seg', help='Path to segmentation dataset used to assist in detection', type=str, default='')
+    # parser.add_argument('--out', help='output image path',
+    #                     type=str, default='yy_lands_est.csv')
 
-    parser.add_argument('--no-hdr', help='No CSV header', action='store_true')
+    # parser.add_argument('--pat', help='patient index', type=str)
 
-    parser.add_argument('--threshold', help='heatmap thresholding', type=int)
+    # parser.add_argument(
+    #     '--use-seg', help='Path to segmentation dataset used to assist in detection', type=str, default='')
 
-    parser.add_argument(
-        '--rand', help='Run test on rand data', action='store_true')
+    # parser.add_argument('--no-hdr', help='No CSV header', action='store_true')
 
-    parser.add_argument(
-        '--hm-lvl', help='Use heatmap max activation as thresholding otherwise use default cross region', action='store_true')
+    # parser.add_argument('--threshold', help='heatmap thresholding', type=int)
 
-    parser.add_argument('-d', '--ds-factor',
-                        help='Down sample Factor', type=int, default=4)
+    # parser.add_argument(
+    #     '--rand', help='Run test on rand data', action='store_true')
 
-    args = parser.parse_args()
+    # parser.add_argument(
+    #     '--hm-lvl', help='Use heatmap max activation as thresholding otherwise use default cross region', action='store_true')
+
+    # parser.add_argument('-d', '--ds-factor',
+    #                     help='Down sample Factor', type=int, default=4)
+
+    # args = parser.parse_args()
 
     heat_file_path = args.heat_file_path
     heats_group_path = args.heats_group_path
