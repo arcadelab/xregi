@@ -577,10 +577,15 @@ def generate_xreg_input(xray_dir: str, landmarks_dir: str, output_dir: str):
 def read_ct_dicom(ct_path: str):
     pass
 
+<<<<<<< HEAD
+def dicom2h5(xray_folder_path:str, label_path:str,output_path:str):
+
+=======
 
 def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     def read_xray(path, voi_lut=True, fix_monochrome=True):
         dicom = pydicom.read_file(path)
+>>>>>>> 075bf054d3665b533e34e6ba894a19230ab6dd20
 
     # folder_path = "dicom_image"
     folder_path = xray_folder_path
