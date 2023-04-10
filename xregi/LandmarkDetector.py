@@ -43,6 +43,8 @@ class SynthexDetector(LandmarkDetector):
         args.nets = os.path.join(self.current_path, args.nets)
         args.output_data_file_path = os.path.join(
             self.current_path, args.output_data_file_path)
+        self.output_data_file_path = args.output_data_file_path
+        print(self.output_data_file_path)
         self.ensemble_seg = class_ensemble.ensemble(args)
         self.nets = self.ensemble_seg.loadnet()
 
@@ -55,10 +57,9 @@ class SynthexDetector(LandmarkDetector):
             input_data_file_path, input_label_file_path)
 
     def detect(self):
-        test_ds_path = self.ensemble_seg.dst_data_file_path
         subprocess.run(["python",
                         "SyntheX/est_land_csv.py",
-                        test_ds_path,  # input_data_file_path
+                        self.output_data_file_path,  # input_data_file_path
                         "nn-heats",
                         "--use-seg", "nn-segs",
                         "--pat", "1",  # patient ID
@@ -86,7 +87,7 @@ if __name__ == "__main__":
 
     args.input_data_file_path = "data/synthex_input.h5"
     args.input_label_file_path = "data/synthex_label_input.h5"
-    args.output_data_file_path = "data/output.csv"
+    args.output_data_file_path = "data/output.h5"
 
     args.rand = True
     args.pats = "01"
