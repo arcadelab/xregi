@@ -1,5 +1,6 @@
 from utils import *
 
+
 class LandmarkContainer():
     # this class is used to store the landmarks
     # the landmarks can be 2d or 3d
@@ -245,14 +246,16 @@ class LandmarkContainer():
 
         if mode == 'synthex':
             template = 'FH-l'
-            name_modified = self.regulate_landmark_label(self.landmark_name, template)
+            name_modified = self.regulate_landmark_label(
+                self.landmark_name, template)
 
             for i in range(len(name_modified)):
                 landmarks[name_modified[i]] = self.landmark_value[i]
 
         elif mode == 'xreg':
             template = 'FH-l'
-            name_modified = self.regulate_landmark_label(self.landmark_name, template)
+            name_modified = self.regulate_landmark_label(
+                self.landmark_name, template)
 
             for i in range(len(name_modified)):
                 landmarks[name_modified[i]] = self.landmark_value[i]
@@ -270,6 +273,7 @@ class LandmarkContainer():
         pass
 
         return landmarks
+
 
 if __name__ == '__main__':
     x = {}
@@ -293,4 +297,4 @@ if __name__ == '__main__':
     # y = list(x.keys())  # convert dict_keys object to list
     # # print the first element of the dict_keys object
     # print(y[-2])
-    # print(len(x)) 
+    # print(len(x))
