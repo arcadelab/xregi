@@ -212,6 +212,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    ensemble_seg = ensemble(args)
+    ensemble_seg = Ensemble(args)
     ensemble_seg.load_nets()
     ensemble_seg.save_data()
