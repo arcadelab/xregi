@@ -27,7 +27,8 @@ class Ensemble:
             self.dev = torch.device("cpu")
             self.torch_map_loc = "cpu"
         else:
-            self.dev = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+            self.dev = torch.device(
+                "cuda:0" if torch.cuda.is_available() else "cpu")
 
     def loadnet(self) -> list:
         self.nets = []
@@ -208,10 +209,11 @@ if __name__ == "__main__":
         type=str,
         default="",
     )
-    parser.add_argument("--rand", help="Run test on rand data", action="store_true")
+    parser.add_argument(
+        "--rand", help="Run test on rand data", action="store_true")
 
     args = parser.parse_args()
 
-    ensemble_seg = ensemble(args)
+    ensemble_seg = Ensemble(args)
     ensemble_seg.load_nets()
     ensemble_seg.save_data()
