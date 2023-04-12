@@ -3,7 +3,7 @@ import argparse
 from SyntheX.dataset import *
 from SyntheX.util import *
 
-from ncc import ncc_2d
+from SyntheX.ncc import ncc_2d
 
 # if __name__ == '__main__':
 
