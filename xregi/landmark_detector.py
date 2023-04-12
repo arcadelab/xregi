@@ -4,13 +4,18 @@ from abc import ABC, abstractmethod
 
 import SyntheX.class_ensemble as class_ensemble
 from SyntheX.est_land_csv import est_land_csv
-from typing import Set, Dict, Optional
+from typing import List, Dict, Optional
 import argparse
 
 
 class LandmarkDetector(ABC):
     """
     Abstract class for landmark detection
+
+    Args:
+    -------
+        image: np.ndarray, x-ray image in the shape of (# of image, height, width)
+
     """
 
     def __init__(self, image: np.ndarray):
@@ -18,7 +23,10 @@ class LandmarkDetector(ABC):
 
     @abstractmethod
     @property
-    def landmarks(self) -> Set[str]:
+    def landmarks(self) -> List[str]:
+        """
+        Landmarks names are defined in the child class
+        """
         pass
 
     @abstractmethod
@@ -41,12 +49,46 @@ class LandmarkDetector(ABC):
 
 
 class SynthexDetector(LandmarkDetector):
-    landmarks = set("r_sps", "l_sps")
+    """
+    Synthex landmark detector
 
-    def __init__(self, image: np.ndarray, landmarks: dict):
+    Args:
+    -------
+        image: np.ndarray, x-ray image in the shape of (# of image, height, width)
+        landmarks: dict[str, np.ndarray], 3d landmarks in the shape of (landmark name, [x, y, z])
+
+
+    """
+
+    def __init__(self, image: np.ndarray, landmarks: Dict[str, np.ndarray]):
         super.__init__(image)
 
+    def landmarks(self) -> List[str]:
+        return [
+            "FH-l",
+            "FH-r",
+            "GSN-l",
+            "GSN-r",
+            "IOF-l",
+            "IOF-r",
+            "MOF-l",
+            "MOF-r",
+            "SPS-l",
+            "SPS-r",
+            "IPS-l",
+            "IPS-r",
+            "ASIS-l",
+            "ASIS-r",
+        ]
+
     def load_data(self, args):
+        """
+        Load the model and the data from the given path
+
+        Args:
+        -------
+            args: argparse.Namespace, arguments for the model and the data
+        """
         self.current_path = os.path.abspath(os.path.dirname(__file__))
         args.nets = os.path.join(self.current_path, args.nets)
         args.output_data_file_path = os.path.join(
