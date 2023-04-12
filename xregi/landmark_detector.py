@@ -4,21 +4,29 @@ from abc import ABC, abstractmethod
 
 import SyntheX.class_ensemble as class_ensemble
 from SyntheX.est_land_csv import est_land_csv
-from typing import Set, Dict, Optional
+from typing import List, Dict, Optional
 import argparse
+from args import default_args
 
 
 class LandmarkDetector(ABC):
     """
     Abstract class for landmark detection
+
+    Args:
+    -------
+        image: np.ndarray, x-ray image in the shape of (# of image, height, width)
+
     """
 
     def __init__(self, image: np.ndarray):
         self.image = image
 
-    @abstractmethod
     @property
-    def landmarks(self) -> Set[str]:
+    def landmarks(self) -> List[str]:
+        """
+        Landmarks names are defined in the child class
+        """
         pass
 
     @abstractmethod
@@ -41,29 +49,46 @@ class LandmarkDetector(ABC):
 
 
 class SynthexDetector(LandmarkDetector):
-    landmarks = set("r_sps", "l_sps")
+    """
+    Synthex landmark detector
 
-    def __init__(self, image: np.ndarray, landmarks: dict):
+    Args:
+    -------
+        image: np.ndarray, x-ray image in the shape of (# of image, height, width)
+        landmarks: dict[str, np.ndarray], 3d landmarks in the shape of (landmark name, [x, y, z])
+
+
+    """
+
+    def __init__(self, image: np.ndarray, landmarks: Dict[str, np.ndarray]):
         super.__init__(image)
+        self.args = default_args()
 
-    def load_data(self, args):
+    def reload_image(self, image_folder_path, label_path, output_path):
+        dicom2h5(image_folder_path, label_path, output_path)
+
+    def load_data(self):
+        """
+        load once
+        update path
+        """
         self.current_path = os.path.abspath(os.path.dirname(__file__))
-        args.nets = os.path.join(self.current_path, args.nets)
-        args.output_data_file_path = os.path.join(
+        self.args.out = os.path.join(syn.current_path, self.args.out)
+        self.args.nets = os.path.join(self.current_path, self.args.nets)
+        self.args.output_data_file_path = os.path.join(
             self.current_path, args.output_data_file_path
         )
-        self.output_data_file_path = args.output_data_file_path
-        print(self.output_data_file_path)
-        self.ensemble_seg = class_ensemble.Ensemble(args)
-        self.nets = self.ensemble_seg.loadnet()
+        self.output_data_file_path = self.args.output_data_file_path
+        self.ensemble_seg = class_ensemble.Ensemble(self.args)
+        self.ensemble_seg.loadnet()
 
     def savedata(self, input_data_file_path, input_label_file_path):
         input_data_file_path = os.path.join(self.current_path, input_data_file_path)
         input_label_file_path = os.path.join(self.current_path, input_label_file_path)
         self.ensemble_seg.savedata(input_data_file_path, input_label_file_path)
 
-    def detect(self, args2):
-        est_land_csv(args2)
+    def detect(self):
+        est_land_csv(self.args)
 
     @classmethod
     def load(cls, xray_folder_path, label_path, output_path, pats):
@@ -110,23 +135,3 @@ if __name__ == "__main__":
     args2.threshold = 2
 
     syn.detect(args2)
-
-    # args.heat_file_path = "data/"
-    # args.heats_group_path = "nn-heats"
-
-    # args.out = "data/own_data.csv"
-
-    # args.rand = False
-
-    # args.hm_lvl = 0
-
-    # args.ds_factor = 1
-
-    # args.pat = "1"
-
-    # no_csv_hdr = args.no_hdr
-
-    # seg_ds_path = args.use_seg
-
-    # threshold = args.threshold
-    # syn.load_network()

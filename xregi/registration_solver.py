@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import subprocess
 from utils import *
-from LandmarkContainer import LandmarkContainer
+from xregi.landmark_container import LandmarkContainer
 from abc import ABC, abstractmethod
 
 
