@@ -24,11 +24,11 @@ def default_args():
     args.heats_group_path = "nn-heats"
     args.out = "data/own_data.csv"
     args.out = os.path.join(current_path, args.out)
-    # args.pat = "01"
+    args.pat = "01"
     args.use_seg = "nn-segs"
     # args.rand = True
     args.hm_lvl = True
     args.ds_factor = 4
-    args.no_hdr = True
+    args.no_hdr = False
     args.threshold = 2
     return args

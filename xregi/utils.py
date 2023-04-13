@@ -322,7 +322,6 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
 
     
     current_path = os.path.abspath(os.path.dirname(__file__))
-
     xray_folder_path = os.path.join(current_path, xray_folder_path)
     label_path = os.path.join(current_path, label_path)
     output_path = os.path.join(current_path, output_path)
