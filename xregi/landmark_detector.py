@@ -22,6 +22,7 @@ class LandmarkDetector(ABC):
     def __init__(self, image: np.ndarray):
         self.image = image
 
+    @abstractmethod
     @property
     def landmarks(self) -> List[str]:
         """
@@ -31,6 +32,9 @@ class LandmarkDetector(ABC):
 
     @abstractmethod
     def load_data(self):
+        """
+        load data using specific method
+        """
         pass
 
     @abstractmethod

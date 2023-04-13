@@ -1,13 +1,42 @@
 import numpy as np
 import pandas as pd
 import subprocess
+from typing import Dict, List, Optional
 from utils import *
-from xregi.landmark_container import LandmarkContainer
+from landmark_container import LandmarkContainer
 from abc import ABC, abstractmethod
 
 
 class RegistrationSolver(ABC):
-    # add __init__ function to initialize the class
+    """
+    Abstract class for registration solver
+
+    Args:
+    -------
+        image (np.ndarray): x-ray image 3d array with (# of image, height, width) shape
+        landmarks_2D (dict[str, list]): dictionary (landmark name, [x, y])
+        ct_path (str): string contains the path to the CT scan file
+        landmarks_3D (dict[str, list]): dictionary (landmark name, [x, y, z])
+        cam_param (dict[str, np.ndarray]): camera intrinsic and extrinsic parameters
+
+    Returns:
+    -------
+        np.ndarray: 4x4 transformation matrix
+    """
+
+    def __init__(
+        self,
+        image: np.ndarray,
+        landmarks_2D: Dict[str, List[float]],
+        ct_path: str,
+        landmarks_3D: Dict[str, List[float]],
+        cam_param: Dict[str, np.ndarray],
+    ):
+        self.image = image
+        self.landmarks_2D = landmarks_2D
+        self.ct_path = ct_path
+        self.landmarks_3D = landmarks_3D
+        self.cam_param = cam_param
 
     @abstractmethod
     def load(self):
@@ -18,15 +47,9 @@ class RegistrationSolver(ABC):
         """
         Solve registration problem, return 3D coordinates of landmarks
 
-        Args:
-        -------
-        self.image: np.ndarray
-        self.landmarks_2D: dict[str, np.ndarray]
-        self.landmarks_3D: dict[str, np.ndarray]
-
         Returns:
         -------
-        landmarks_3D: np.ndarray
+            np.ndarray
         """
         pass
 
@@ -34,21 +57,40 @@ class RegistrationSolver(ABC):
 class XregSolver(RegistrationSolver):
     """
     Solve 2d 3d registration problem using xreg
+    This class is for single-view registration, which only takes one x-ray image as input
     """
 
     def __init__(
-        self, image: np.ndarray, ct_path: str, landmarks_2D: dict, landmarks_3D: dict
+        self,
+        image: np.ndarray,
+        landmarks_2D: Dict[str, List[float]],
+        ct_path: str,
+        landmarks_3D: Dict[str, List[float]],
+        cam_param: Dict[str, np.ndarray],
+        path: Optional[Dict[str, str]],
     ):
+        """
+        Initialize XregSolver class
+
+        Args:
+        -------
+            image (np.ndarray): x-ray image in the shape of (width, height), sine xreg only takes one image as input for single-view registration
+            landmarks_2D (dict[str, list[float]]): 2d landmarks in the shape of (landmark name, [x, y])
+            ct_path (str): path to the CT scan file, typically there is no need to load the CT scan in the file
+            landmarks_3D (dict[str, list[float]]): 3d landmarks in the shape of (landmark name, [x, y, z])
+            cam_param (dict[str, np.ndarray]): camera parameters including intrinsic and extrinsic parameters
+
+        """
+        super().__init__(
+            None, landmarks_2D, ct_path, landmarks_3D, cam_param
+        )  # not load the image here
+
         self.image = image
-        self.CT = ct_path  # no need to load CT in the file, just use the path of it
-        self.landmark = LandmarkContainer.load(
-            "2d", list(landmarks_2D.values()), list(landmarks_2D.keys())
-        )
-        self.landmarks_2D = landmarks_2D
-        self.landmarks_3D = landmarks_3D
 
         current_path = os.path.abspath(os.path.dirname(__file__))
         self.temp_file_path = os.path.join(current_path, "data/xreg_input.h5")
+
+        self.path = path if path is not None else {}
 
     @classmethod
     def load(
@@ -57,6 +99,7 @@ class XregSolver(RegistrationSolver):
         ct_path_load: str,
         landmarks_2d_path: str,
         landmarks_3d_path: str,
+        cam_param: Dict[str, np.ndarray] = None,
     ):
         image_load = read_xray_dicom(image_path_load)
         # landmarks_3d = get_3d_landmarks(
@@ -64,7 +107,9 @@ class XregSolver(RegistrationSolver):
 
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
 
-        return cls(image_load, ct_path_load, landmarks_2d, None)
+        path = {"landmark_3d_path": landmarks_3d_path}
+
+        return cls(image_load, landmarks_2d, ct_path_load, None, None, path)
 
     def generate_h5(self):
         """
@@ -128,34 +173,54 @@ class XregSolver(RegistrationSolver):
             # print(np.asarray(landmarks_2d.iloc[lm_idx].values))
             # h5_file['proj-000']['landmarks'][lms] = 0.0
 
-    def solve(self, runOptions) -> np.ndarray:
+    def solve(self, runOptions: str) -> np.ndarray:
         """Call the executable file
         Args:
         -------
         runOptions: str
-            'run_reg' or 'run_viz' ,
-            'run_reg' is used to run the registration
-            'run_viz' is used to visualize the registration result
+                    'run_reg' or 'run_viz' ,
+                    'run_reg' is used to run the registration
+                    'run_viz' is used to visualize the registration result
 
         Returns:
         --------
             None
 
         """
+        xreg_path = {}
+        xreg_path["solver_path"] = os.path.join(
+            self.temp_file_path, "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d"
+        )
+        xreg_path["ct_path"] = os.path.join(self.temp_file_path, "data/pelvis.nii.gz")
+        xreg_path["ct_segmentation_path"] = os.path.join(
+            self.temp_file_path, "data/pelvis_seg.nii.gz"
+        )
+        xreg_path["3d_landmarks_path"] = os.path.join(
+            self.temp_file_path, "data/pelvis_regi_2d_3d_lands_wo_id.fcsv"
+        )
+        xreg_path["xray_path"] = os.path.join(
+            self.temp_file_path, "data/example1_1_pd_003.h5"
+        )
+        xreg_path["result_path"] = os.path.join(
+            self.temp_file_path, "data/xreg_result_pose.h5"
+        )
+        xreg_path["debug_path"] = os.path.join(
+            self.temp_file_path, "data/xreg_debug_log.h5"
+        )
 
         if runOptions == "run_reg":
             print("run_reg is running ...")
 
             result = subprocess.run(
                 [
-                    "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
-                    "data/pelvis.nii.gz",
-                    "data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
-                    "data/example1_1_pd_003.h5",
-                    "result/regi_pose_example1_1_pd_003_proj0.h5",
-                    "result/regi_debug_example1_1_pd_003_proj0_w_seg.h5",
-                    "-s",
-                    "data/pelvis_seg.nii.gz",
+                    xreg_path["solver_path"],
+                    xreg_path["ct_path"],
+                    xreg_path["3d_landmarks_path"],
+                    xreg_path["xray_path"],
+                    xreg_path["result_path"],
+                    xreg_path["debug_path"],
+                    "-s",  # option to use the segmentation to mask out the irrelevant part of the CT
+                    xreg_path["ct_segmentation_path"],
                 ],
                 stdout=subprocess.PIPE,
             )
@@ -244,8 +309,10 @@ if __name__ == "__main__":
         image_path_load="data/x_ray1.dcm",
         ct_path_load="data/pelvis.nii.gz",
         landmarks_2d_path="data/own_data.csv",
-        landmarks_3d_path=None,
+        landmarks_3d_path="data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
     )
+
+    print(reg_solver.path)
 
     # x = {}
     # x['sps_l'] = [1, 2]
