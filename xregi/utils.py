@@ -320,7 +320,7 @@ def read_ct_dicom(ct_path: str):
 
 def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
 
-    # folder_path = "dicom_image"
+    
     current_path = os.path.abspath(os.path.dirname(__file__))
 
     xray_folder_path = os.path.join(current_path, xray_folder_path)

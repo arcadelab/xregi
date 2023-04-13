@@ -98,7 +98,7 @@ class Ensemble:
         self.proj_unet_dim = proj_unet_dim
         self.num_lands = num_lands
 
-        return self.nets
+        
 
     def savedata(self, input_data_file_path, input_label_file_path):
         self.src_data_file_path = input_data_file_path
@@ -170,50 +170,4 @@ class Ensemble:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Run ensemble segmentation and heatmap estimation for hip imaging application.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    parser.add_argument(
-        "input_data_file_path",
-        help="Path to the datafile containing projections",
-        type=str,
-    )
-    parser.add_argument(
-        "input_label_file_path",
-        help="Path to the datafile containing groundtruth segmentations and landmarks",
-        type=str,
-    )
-    parser.add_argument(
-        "output_data_file_path",
-        help="Path to the output datafile containing segmentations",
-        type=str,
-    )
-    parser.add_argument(
-        "--nets",
-        help="Paths to the networks used to perform segmentation - specify this after the positional arguments",
-        type=str,
-        nargs="+",
-    )
-    parser.add_argument(
-        "--pats", help="comma delimited list of patient IDs used for testing", type=str
-    )
-    parser.add_argument(
-        "--no-gpu",
-        help="Only use CPU - do not use GPU even if it is available",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--times",
-        help="Path to file storing runtimes for each image",
-        type=str,
-        default="",
-    )
-    parser.add_argument(
-        "--rand", help="Run test on rand data", action="store_true")
-
-    args = parser.parse_args()
-
-    ensemble_seg = Ensemble(args)
-    ensemble_seg.load_nets()
-    ensemble_seg.save_data()
+    pass
