@@ -32,7 +32,7 @@ class RegistrationSolver(ABC):
         landmarks_3D: Dict[str, List[float]],
         cam_param: Dict[str, np.ndarray],
     ):
-        self.image = image
+        self._image = image
         self.landmarks_2D = landmarks_2D
         self.ct_path = ct_path
         self.landmarks_3D = landmarks_3D
@@ -83,15 +83,14 @@ class XregSolver(RegistrationSolver):
 
         """
         super().__init__(
-            None, landmarks_2D, ct_path, landmarks_3D, cam_param
+            image, landmarks_2D, ct_path, landmarks_3D, cam_param
         )  # not load the image here
 
-        self.image = image
-
         current_path = os.path.abspath(os.path.dirname(__file__))
-        self.temp_file_path = os.path.join(current_path, "data/xreg_input.h5")
 
         self.path = path if path is not None else {}
+        path["current_path"] = current_path
+        path["ct_path"] = os.path.join(current_path, self.ct_path)
 
     @classmethod
     def load(
@@ -102,15 +101,49 @@ class XregSolver(RegistrationSolver):
         landmarks_3d_path: str,
         cam_param: Dict[str, np.ndarray] = None,
     ):
+        """
+        Load the image and landmarks from local file with given path
+
+        Args:
+        -------
+            image_path_load (str): path to the x-ray image
+            ct_path_load (str): path to the CT scan
+            landmarks_2d_path (str): path to the 2d landmarks
+            landmarks_3d_path (str): path to the 3d landmarks
+            cam_param (dict[str, np.ndarray]): camera intrinsic and extrinsic parameters
+
+        Returns:
+        -------
+            XregSolver: XregSolver object
+        """
+
         image_load = read_xray_dicom(image_path_load)
-        # landmarks_3d = get_3d_landmarks(
-        #     landmarks_3d_path, folder_type="fcsv", label_idx=11)
 
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
 
-        path = {"landmark_3d_path": landmarks_3d_path}
+        return cls(
+            image_load,
+            landmarks_2d,
+            ct_path_load,
+            None,
+            None,
+            {"landmark_3d_path": landmarks_3d_path},
+        )
 
-        return cls(image_load, landmarks_2d, ct_path_load, None, None, path)
+    @property
+    def image(self) -> np.ndarray:
+        """
+        Get the image for registration solver
+        """
+        return self._image
+
+    @image.setter
+    def image(self, new_image: np.ndarray):
+        """
+        Set the image for registration solver
+        This allows the solver to change the image without re-initializing the class
+        """
+        self._image = new_image
 
     def generate_h5(self):
         """
@@ -118,7 +151,7 @@ class XregSolver(RegistrationSolver):
         the h5 file contains x-ray image and 2d landmarks
         """
 
-        h5_file = h5py.File(self.temp_file_path, "w")
+        h5_file = h5py.File(self.path, "w")
         h5_file.create_dataset("num_projs", data=1, dtype="u8")
         h5_file.create_group("proj-000")
 
@@ -190,23 +223,23 @@ class XregSolver(RegistrationSolver):
         """
         xreg_path = {}
         xreg_path["solver_path"] = os.path.join(
-            self.temp_file_path, "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d"
+            self.path["current_path"], "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d"
         )
-        xreg_path["ct_path"] = os.path.join(self.temp_file_path, "data/pelvis.nii.gz")
+        xreg_path["ct_path"] = self.path["ct_path"]
         xreg_path["ct_segmentation_path"] = os.path.join(
-            self.temp_file_path, "data/pelvis_seg.nii.gz"
+            self.path["current_path"], "data/pelvis_seg.nii.gz"
         )
         xreg_path["3d_landmarks_path"] = os.path.join(
-            self.temp_file_path, "data/pelvis_regi_2d_3d_lands_wo_id.fcsv"
+            self.path["current_path"], "data/pelvis_regi_2d_3d_lands_wo_id.fcsv"
         )
         xreg_path["xray_path"] = os.path.join(
-            self.temp_file_path, "data/example1_1_pd_003.h5"
+            self.path["current_path"], "data/example1_1_pd_003.h5"
         )
         xreg_path["result_path"] = os.path.join(
-            self.temp_file_path, "data/xreg_result_pose.h5"
+            self.path["current_path"], "data/xreg_result_pose.h5"
         )
         xreg_path["debug_path"] = os.path.join(
-            self.temp_file_path, "data/xreg_debug_log.h5"
+            self.path["current_path"], "data/xreg_debug_log.h5"
         )
 
         if runOptions == "run_reg":
