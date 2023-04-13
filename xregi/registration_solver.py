@@ -49,7 +49,7 @@ class RegistrationSolver(ABC):
 
         Returns:
         -------
-            np.ndarray
+            np.ndarray: 4x4 transformation matrix
         """
         pass
 
@@ -74,11 +74,12 @@ class XregSolver(RegistrationSolver):
 
         Args:
         -------
-            image (np.ndarray): x-ray image in the shape of (width, height), sine xreg only takes one image as input for single-view registration
-            landmarks_2D (dict[str, list[float]]): 2d landmarks in the shape of (landmark name, [x, y])
-            ct_path (str): path to the CT scan file, typically there is no need to load the CT scan in the file
-            landmarks_3D (dict[str, list[float]]): 3d landmarks in the shape of (landmark name, [x, y, z])
-            cam_param (dict[str, np.ndarray]): camera parameters including intrinsic and extrinsic parameters
+            image (np.ndarray): x-ray image 3d array with (# of image, height, width) shape
+            landmarks_2D (dict[str, list]): dictionary (landmark name, [x, y])
+            ct_path (str): string contains the path to the CT scan file
+            landmarks_3D (dict[str, list]): dictionary (landmark name, [x, y, z])
+            cam_param (dict[str, np.ndarray]): camera intrinsic and extrinsic parameters
+            path (dict[str, str]): dictionary contains the path to the xreg input and output files
 
         """
         super().__init__(
