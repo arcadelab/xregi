@@ -1,6 +1,7 @@
 **.h5
 **.pt
 **/data
+**/data/*
 
 # Ignore all pycache folders
 **/__pycache__
