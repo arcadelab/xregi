@@ -27,7 +27,7 @@ class RegistrationSolver(ABC):
     def __init__(
         self,
         image: np.ndarray,
-        landmarks_2D: Dict[str, List[float]],
+        landmarks_2D: Dict[str, np.ndarray],
         ct_path: str,
         landmarks_3D: Dict[str, List[float]],
         cam_param: Dict[str, np.ndarray],
@@ -63,7 +63,7 @@ class XregSolver(RegistrationSolver):
     def __init__(
         self,
         image: np.ndarray,
-        landmarks_2D: Dict[str, List[float]],
+        landmarks_2D: Dict[str, np.ndarray],
         ct_path: str,
         landmarks_3D: Dict[str, List[float]],
         cam_param: Dict[str, np.ndarray],
@@ -89,14 +89,22 @@ class XregSolver(RegistrationSolver):
         current_path = os.path.abspath(os.path.dirname(__file__))
 
         self.path = path if path is not None else {}
-        path["current_path"] = current_path
-        path["ct_path"] = os.path.join(current_path, self.ct_path)
+        self.path["current_path"] = current_path
+        self.path["ct_path"] = os.path.join(current_path, self.ct_path)
+        self.path["h5_path_template"] = os.path.join(
+            current_path, "../data/example1_1_pd_003.h5"
+        )
+        self.path["h5_path"] = os.path.join(current_path, "../data/xreg_input.h5")
+        print(self.path)
+
+        self.generate_h5()
 
     @classmethod
     def load(
         cls,
         image_path_load: str,
         ct_path_load: str,
+        ct_segmentation_path: str,
         landmarks_2d_path: str,
         landmarks_3d_path: str,
         cam_param: Dict[str, np.ndarray] = None,
@@ -127,7 +135,10 @@ class XregSolver(RegistrationSolver):
             ct_path_load,
             None,
             None,
-            {"landmark_3d_path": landmarks_3d_path},
+            {
+                "landmark_3d_path": landmarks_3d_path,
+                "ct_segmentation_path": ct_segmentation_path,
+            },
         )
 
     @property
@@ -151,11 +162,11 @@ class XregSolver(RegistrationSolver):
         the h5 file contains x-ray image and 2d landmarks
         """
 
-        h5_file = h5py.File(self.path, "w")
+        h5_file = h5py.File(self.path["h5_path"], "w")
         h5_file.create_dataset("num_projs", data=1, dtype="u8")
         h5_file.create_group("proj-000")
 
-        with h5py.File("data/example1_1_pd_003.h5", "r") as h5_template:
+        with h5py.File(self.path["h5_path_template"], "r") as h5_template:
             for key in h5_template["proj-000"].keys():
                 # print(h5_template['proj-000'][key].values())
                 h5_file["proj-000"].create_group(key)
@@ -181,22 +192,6 @@ class XregSolver(RegistrationSolver):
         h5_template.close()
 
         # write the 2d landmarks to the HDF5 file
-        lm_names_synthex = [
-            "FH-l",
-            "FH-r",
-            "GSN-l",
-            "GSN-r",
-            "IOF-l",
-            "IOF-r",
-            "MOF-l",
-            "MOF-r",
-            "SPS-l",
-            "SPS-r",
-            "IPS-l",
-            "IPS-r",
-            "ASIS-l",
-            "ASIS-r",
-        ]  # this is the order of the landmarks in the SyntheX dataset
 
         for lms in h5_file["proj-000"]["landmarks"].keys():
             landmark_2d = self.landmark.get_landmark(mode="xreg")
@@ -206,6 +201,8 @@ class XregSolver(RegistrationSolver):
             )
             # print(np.asarray(landmarks_2d.iloc[lm_idx].values))
             # h5_file['proj-000']['landmarks'][lms] = 0.0
+
+        h5_file.close()
 
     def solve(self, runOptions: str) -> np.ndarray:
         """Call the executable file
@@ -222,19 +219,16 @@ class XregSolver(RegistrationSolver):
 
         """
         xreg_path = {}
-        xreg_path["solver_path"] = os.path.join(
-            self.path["current_path"], "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d"
-        )
         xreg_path["ct_path"] = self.path["ct_path"]
-        xreg_path["ct_segmentation_path"] = os.path.join(
-            self.path["current_path"], "data/pelvis_seg.nii.gz"
+        xreg_path["xray_path"] = self.path["h5_path"]
+        xreg_path["solver_path"] = os.path.join(
+            self.path["current_path"],
+            "xregi/bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
         )
-        xreg_path["3d_landmarks_path"] = os.path.join(
-            self.path["current_path"], "data/pelvis_regi_2d_3d_lands_wo_id.fcsv"
-        )
-        xreg_path["xray_path"] = os.path.join(
-            self.path["current_path"], "data/example1_1_pd_003.h5"
-        )
+
+        xreg_path["ct_segmentation_path"] = self.path["ct_path"]
+        xreg_path["3d_landmarks_path"] = self.path["landmark_3d_path"]
+
         xreg_path["result_path"] = os.path.join(
             self.path["current_path"], "data/xreg_result_pose.h5"
         )
@@ -276,17 +270,20 @@ class XregSolver(RegistrationSolver):
             )
             print(result.stdout.decode())
 
+        else:
+            RuntimeError(
+                "runOptions not supported \n runOptions: 'run_reg' or 'run_viz' "
+            )
+
     def get_2d_landmarks(landmarks_path: str) -> dict:
         """Get 2D landmarks from the csv file
         Params:
         -------
-        landmarks_2d_path: str
-            Path to the csv file
+            landmarks_2d_path (str): Path to the csv file
 
         Returns:
         --------
-        landmarks_2d: dict[str, np.ndarray]
-            A dictionary of 2D landmarks
+            landmarks_2d (dict[str, np.ndarray]): A dictionary of 2D landmarks
         """
         # This is the synthex format and order for landmarks
         land_name = [
@@ -304,7 +301,7 @@ class XregSolver(RegistrationSolver):
             "IPS-r",
             "ASIS-l",
             "ASIS-r",
-        ]
+        ]  # this is the naming convention for the 2D landmarks in synthex generated csv file
 
         landmarks_2d = {}
         data_frame = pd.read_csv(landmarks_path)
@@ -313,7 +310,7 @@ class XregSolver(RegistrationSolver):
         )
 
         data_frame["land-name"] = land_name
-        print(data_frame["land-name"][0])
+        # print(data_frame["land-name"][0])
 
         for i in range(len(data_frame)):
             landmarks_2d[data_frame["land-name"][i]] = [
@@ -321,6 +318,7 @@ class XregSolver(RegistrationSolver):
                 data_frame["col"][i],
             ]
 
+        # print(landmarks_2d)
         return landmarks_2d
 
 
@@ -342,6 +340,7 @@ if __name__ == "__main__":
     reg_solver = XregSolver.load(
         image_path_load="data/x_ray1.dcm",
         ct_path_load="data/pelvis.nii.gz",
+        ct_segmentation_path="data/pelvis_seg.nii.gz",
         landmarks_2d_path="data/own_data.csv",
         landmarks_3d_path="data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
     )
