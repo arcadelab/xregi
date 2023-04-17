@@ -30,5 +30,5 @@ def default_args():
     args.hm_lvl = True
     args.ds_factor = 4
     args.no_hdr = False
-    args.threshold = 2
+    args.threshold = 1
     return args
