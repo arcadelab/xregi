@@ -1,5 +1,6 @@
 import numpy as np
 import h5py
+import os
 
 
 def readh5(h5_path: str):
@@ -21,7 +22,7 @@ def readh5(h5_path: str):
         key_list = list(f.keys())
 
         print(key_list)
-        sub_key = f["proj-000"]["cam"]
+        sub_key = f["proj-000"]["landmarks"].keys()
         print(sub_key)
 
         # data = f["proj-000/landmarks/GSN-l"]
@@ -41,5 +42,7 @@ def readh5(h5_path: str):
 
 if __name__ == "__main__":
     # h5_path = "data/synthex_input.h5"
-    h5_path = "../data/example1_1_pd_003.h5"
+    current_path = os.path.abspath(os.path.dirname(__file__))
+    h5_path = os.path.join(current_path, "../data/example1_1_pd_003.h5")
+
     readh5(h5_path)

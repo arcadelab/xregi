@@ -90,7 +90,7 @@ class XregSolver(RegistrationSolver):
 
         self.path = path if path is not None else {}
         self.path["current_path"] = current_path
-        self.path["ct_path"] = os.path.join(current_path, self.ct_path)
+        self.path["ct_path"] = os.path.join(current_path, "..", self.ct_path)
         self.path["h5_path_template"] = os.path.join(
             current_path, "../data/example1_1_pd_003.h5"
         )
@@ -192,12 +192,15 @@ class XregSolver(RegistrationSolver):
         h5_template.close()
 
         # write the 2d landmarks to the HDF5 file
+        landmark = LandmarkContainer("2d", self.landmarks_2D)
+        print(landmark.landmark_name)
+        landmark_2d = landmark.get_landmark()
 
+        print(landmark_2d.keys())
         for lms in h5_file["proj-000"]["landmarks"].keys():
-            landmark_2d = self.landmark.get_landmark(mode="xreg")
-
+            print(lms)
             h5_file["proj-000"]["landmarks"][lms][...] = np.reshape(
-                np.asarray(landmark_2d[lms], (2, 1))
+                np.asarray(landmark_2d[lms]), (2, 1)
             )
             # print(np.asarray(landmarks_2d.iloc[lm_idx].values))
             # h5_file['proj-000']['landmarks'][lms] = 0.0
@@ -223,7 +226,7 @@ class XregSolver(RegistrationSolver):
         xreg_path["xray_path"] = self.path["h5_path"]
         xreg_path["solver_path"] = os.path.join(
             self.path["current_path"],
-            "xregi/bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
+            "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
         )
 
         xreg_path["ct_segmentation_path"] = self.path["ct_path"]
@@ -244,7 +247,8 @@ class XregSolver(RegistrationSolver):
                     xreg_path["solver_path"],
                     xreg_path["ct_path"],
                     xreg_path["3d_landmarks_path"],
-                    xreg_path["xray_path"],
+                    # xreg_path["xray_path"],
+                    "data/example1_1_pd_003.h5",
                     xreg_path["result_path"],
                     xreg_path["debug_path"],
                     "-s",  # option to use the segmentation to mask out the irrelevant part of the CT
@@ -337,6 +341,18 @@ if __name__ == "__main__":
     # x = xreg.get_2d_landmarks("data/own_data.csv")
     # print(x.values())
 
+    import os
+
+    folder_path = "/home/jeremy/Documents/xregi-dev"
+    mode = 0o777  # permission bits in octal
+
+    # iterate over all files in the folder
+    for file_name in os.listdir(folder_path):
+        # construct the full file path
+        file_path = os.path.join(folder_path, file_name)
+        # change the permission bits of the file
+        os.chmod(file_path, mode)
+
     reg_solver = XregSolver.load(
         image_path_load="data/x_ray1.dcm",
         ct_path_load="data/pelvis.nii.gz",
@@ -345,7 +361,7 @@ if __name__ == "__main__":
         landmarks_3d_path="data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
     )
 
-    print(reg_solver.path)
+    reg_solver.solve("run_reg")
 
     # x = {}
     # x['sps_l'] = [1, 2]

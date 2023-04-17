@@ -1,11 +1,12 @@
 from utils import *
+from typing import List, Dict
 
 
 class LandmarkContainer:
     # this class is used to store the landmarks
     # the landmarks can be 2d or 3d
 
-    def __init__(self, landmark_type: str, landmark: dict):
+    def __init__(self, landmark_type: str, landmark: Dict[str, np.ndarray]):
         """
         Args:
         ------
@@ -76,7 +77,7 @@ class LandmarkContainer:
             name_format = name_format.split("-")
             name_format.append("-")
             if len(name_format[0]) == 1:
-                # 0 denotes side, separator, label pattern
+                # 0 denotes the pattern of [side, separator, label]
                 template["order"] = 0
                 # 0 denotes lower case, i.e. 'l' 'r', 1 denotes upper case 'L' 'R'
                 template["side"] = 0 if name_format[0].islower() else 1
@@ -128,6 +129,7 @@ class LandmarkContainer:
         else:
             pass  # TODO: add other naming format
 
+        regulate_name = []
         for name in names:
             if divider == "-":
                 anatomy_name = name.split("-")
@@ -135,127 +137,127 @@ class LandmarkContainer:
                 if (
                     len(anatomy_name[0]) == 1 and template["order"] == 0
                 ):  # side comes first
-                    anatomy_name[0] = (
+                    regulate_name[0] = (
                         anatomy_name[0].upper()
                         if template["side"] == 1
                         else anatomy_name[0].lower()
                     )
-                    anatomy_name[1] = (
+                    regulate_name[1] = (
                         anatomy_name[1].upper()
                         if template["label"] == 1
                         else anatomy_name[1].lower()
                     )
 
-                    target_name = anatomy_name[0] + name_format[2] + anatomy_name[1]
+                    target_name = regulate_name[0] + name_format[2] + regulate_name[1]
 
                 # label comes first
                 elif len(anatomy_name[1]) == 1 and template["order"] == 0:
-                    anatomy_name[1] = (
+                    regulate_name[1] = (
                         anatomy_name[1].upper()
                         if template["side"] == 1
                         else anatomy_name[1].lower()
                     )
-                    anatomy_name[0] = (
+                    regulate_name[0] = (
                         anatomy_name[0].upper()
                         if template["label"] == 1
                         else anatomy_name[0].lower()
                     )
 
-                    target_name = anatomy_name[1] + name_format[2] + anatomy_name[0]
+                    target_name = regulate_name[1] + name_format[2] + regulate_name[0]
 
                 # side comes first
                 elif len(anatomy_name[0]) == 1 and template["order"] == 1:
-                    anatomy_name[0] = (
+                    regulate_name[0] = (
                         anatomy_name[0].upper()
                         if template["side"] == 1
                         else anatomy_name[0].lower()
                     )
-                    anatomy_name[1] = (
+                    regulate_name[1] = (
                         anatomy_name[1].upper()
                         if template["label"] == 1
                         else anatomy_name[1].lower()
                     )
 
-                    target_name = anatomy_name[0] + name_format[2] + anatomy_name[1]
+                    target_name = regulate_name[0] + name_format[2] + regulate_name[1]
 
                 # label comes first
                 elif len(anatomy_name[1]) == 1 and template["order"] == 1:
-                    anatomy_name[1] = (
+                    regulate_name[1] = (
                         anatomy_name[1].upper()
                         if template["side"] == 1
                         else anatomy_name[1].lower()
                     )
-                    anatomy_name[0] = (
+                    regulate_name[0] = (
                         anatomy_name[0].upper()
                         if template["label"] == 1
                         else anatomy_name[0].lower()
                     )
 
-                    target_name = anatomy_name[1] + name_format[2] + anatomy_name[0]
+                    target_name = regulate_name[1] + name_format[2] + regulate_name[0]
                 # print(target_label_name)
 
             elif divider == "_":
                 anatomy_name = name.split("_")
-                if (
-                    len(anatomy_name[0]) == 1 and template["order"] == 0
-                ):  # side comes first
-                    anatomy_name[0] = (
+
+                # side comes first
+                if len(anatomy_name[0]) == 1 and template["order"] == 0:
+                    regulate_name[0] = (
                         anatomy_name[0].upper()
                         if template["side"] == 1
                         else anatomy_name[0].lower()
                     )
-                    anatomy_name[1] = (
+                    regulate_name[1] = (
                         anatomy_name[1].upper()
                         if template["label"] == 1
                         else anatomy_name[1].lower()
                     )
 
-                    target_name = anatomy_name[0] + name_format[2] + anatomy_name[1]
+                    target_name = regulate_name[0] + name_format[2] + regulate_name[1]
 
                 # label comes first
                 elif len(anatomy_name[1]) == 1 and template["order"] == 0:
-                    anatomy_name[1] = (
+                    regulate_name[0] = (
                         anatomy_name[1].upper()
                         if template["side"] == 1
                         else anatomy_name[1].lower()
                     )
-                    anatomy_name[0] = (
+                    regulate_name[1] = (
                         anatomy_name[0].upper()
                         if template["label"] == 1
                         else anatomy_name[0].lower()
                     )
 
-                    target_name = anatomy_name[1] + name_format[2] + anatomy_name[0]
+                    target_name = regulate_name[0] + name_format[2] + regulate_name[1]
 
                 # side comes first
                 elif len(anatomy_name[0]) == 1 and template["order"] == 1:
-                    anatomy_name[0] = (
-                        anatomy_name[0].upper()
-                        if template["side"] == 1
-                        else anatomy_name[0].lower()
-                    )
-                    anatomy_name[1] = (
+                    regulate_name[0] = (
                         anatomy_name[1].upper()
-                        if template["label"] == 1
+                        if template["side"] == 1
                         else anatomy_name[1].lower()
                     )
+                    regulate_name[1] = (
+                        anatomy_name[0].upper()
+                        if template["label"] == 1
+                        else anatomy_name[0].lower()
+                    )
 
-                    target_name = anatomy_name[0] + name_format[2] + anatomy_name[1]
+                    target_name = regulate_name[0] + name_format[2] + regulate_name[1]
 
                 # label comes first
                 elif len(anatomy_name[1]) == 1 and template["order"] == 1:
-                    anatomy_name[1] = (
-                        anatomy_name[1].upper()
-                        if template["side"] == 1
-                        else anatomy_name[1].lower()
-                    )
-                    anatomy_name[0] = (
+                    regulate_name[0] = (
                         anatomy_name[0].upper()
-                        if template["label"] == 1
+                        if template["side"] == 1
                         else anatomy_name[0].lower()
                     )
+                    regulate_name[1] = (
+                        anatomy_name[1].upper()
+                        if template["label"] == 1
+                        else anatomy_name[1].lower()
+                    )
 
-                    target_name = anatomy_name[1] + name_format[2] + anatomy_name[0]
+                    target_name = regulate_name[0] + name_format[2] + regulate_name[1]
                 # print(target_label_name)
 
             elif divider == "other":  # e.g. 'sps-r'
@@ -296,14 +298,15 @@ class LandmarkContainer:
                 landmarks[name_modified[i]] = self.landmark_value[i]
 
         elif mode == "xreg":
-            template = "FH-l"
+            template = "GSN-l"
             name_modified = self.regulate_landmark_label(self.landmark_name, template)
 
             for i in range(len(name_modified)):
                 landmarks[name_modified[i]] = self.landmark_value[i]
 
         elif mode == "default":
-            # TODO
+            for name in self.landmark_name:
+                landmarks[name] = self.landmark_value[self.landmark_name.index(name)]
             pass
 
         elif mode == "other":
@@ -330,7 +333,7 @@ if __name__ == "__main__":
     for key in x.keys():
         print(key)
 
-    template = "r-FH"
+    template = "FH-l"
     test = lm.regulate_landmark_label(list(x.keys()), template)
     print("original label: ", list(x.keys()))
     print("template label: ", template)
