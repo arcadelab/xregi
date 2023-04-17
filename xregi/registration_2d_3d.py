@@ -4,6 +4,7 @@ from typing import Type, Dict, List
 import pandas as pd
 from landmark_detector import SynthexDetector, LandmarkDetector
 from registration_solver import XregSolver, RegistrationSolver
+from syn_args import default_args
 
 
 
@@ -41,8 +42,8 @@ class Registration2D3D:
         run the registration process and return the 3d coordinates of landmarks
 
         """
-    
-        landmark_detector = self.landmark_detector_type.load(r"data\xray", r"data\real_label.h5", "data", "01")
+        args = default_args()
+        landmark_detector = self.landmark_detector_type.load(args.xray_path,args.label_path, args.output_path, "01")
         landmarks_2d = landmark_detector.run()
         registration_solver = self.registration_solver_type(
             self.image, landmarks_2d, self.landmarks_3d

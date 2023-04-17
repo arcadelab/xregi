@@ -177,9 +177,6 @@ class SynthexDetector(LandmarkDetector):
 
         """
         dicom2h5(xray_folder_path, label_path, output_path)
-        output_path = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), output_path
-        )
         f = h5py.File(os.path.join(output_path, "synthex_input.h5"), "r")
         image = f[pats]["projs"]
         args = default_args()

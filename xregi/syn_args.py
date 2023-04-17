@@ -5,8 +5,15 @@ import os
 def default_args():
     current_path = os.path.abspath(os.path.dirname(__file__))
     args = argparse.Namespace()
+    args.xray_path = "data/xray"
     args.nets = "data/yy_checkpoint_net_20.pt"
     args.nets = os.path.join(current_path, args.nets)
+    args.xray_path = "data/xray"
+    args.xray_path = os.path.join(current_path, args.xray_path)
+    args.label_path = "data/real_label.h5"
+    args.label_path = os.path.join(current_path, args.label_path)
+    args.output_path = "data"
+    args.output_path = os.path.join(current_path, args.output_path)
     args.input_data_file_path = "data/synthex_input.h5"
     args.input_data_file_path = os.path.join(current_path, args.input_data_file_path)
     args.input_label_file_path = "data/synthex_label_input.h5"
