@@ -64,16 +64,16 @@ setup(
         'tensorboard==2.9.1',
         'tensorboard-data-server==0.6.1',
         'tensorboard-plugin-wit==1.8.1',
-        'threadpoolctl==3.1.0'
-        'tifffile==2022.7.31'
-        'torch==1.12.0'
-        'torchvision==0.13.0'
-        'tqdm==4.64.0'
-        'traceback2==1.4.0'
-        'typing-extensions==4.3.0'
-        'unittest2==1.1.0'
-        'urllib3==1.26.11'
-        'werkzeug==2.2.1'
+        'threadpoolctl==3.1.0',
+        'tifffile==2022.7.31',
+        'torch==1.12.0',
+        'torchvision==0.13.0',
+        'tqdm==4.64.0',
+        'traceback2==1.4.0',
+        'typing-extensions==4.3.0',
+        'unittest2==1.1.0',
+        'urllib3==1.26.11',
+        'werkzeug==2.2.1',
         'zipp==3.8.1'
     ],
     entry_points={
