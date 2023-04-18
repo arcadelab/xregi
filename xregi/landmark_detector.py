@@ -5,7 +5,7 @@ import SyntheX.class_ensemble as class_ensemble
 from SyntheX.est_land_csv import est_land_csv
 from typing import List, Dict, Optional
 import argparse
-from xregi.args import default_args
+from args import synthex_args
 
 
 class LandmarkDetector(ABC):
@@ -85,7 +85,7 @@ class SynthexDetector(LandmarkDetector):
         landmarks: Dict[str, np.ndarray],
         args: Optional[argparse.Namespace],
     ):
-        self.args = default_args() if args is None else args
+        self.args = synthex_args() if args is None else args
         super().__init__(image)
 
     @property
@@ -187,7 +187,7 @@ class SynthexDetector(LandmarkDetector):
         dicom2h5(xray_folder_path, label_path, output_path)
         f = h5py.File(os.path.join(output_path, "synthex_input.h5"), "r")
         image = f[pats]["projs"]
-        args = default_args()
+        args = synthex_args()
 
         return cls(image, None, args)
 

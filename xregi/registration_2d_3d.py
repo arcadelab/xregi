@@ -17,7 +17,7 @@ class Registration2D3D:
         self,
         image: np.ndarray,
         ct_path: str,
-        landmarks_3d: Dict[str, List[float, float, float]],
+        landmarks_3d: Dict[str, List[float]],
         intrinsic: np.ndarray,
     ):
         """
@@ -41,7 +41,7 @@ class Registration2D3D:
         run the registration process and return the 3d coordinates of landmarks
 
         """
-        args = args()
+        args = synthex_args()
         landmark_detector = self.landmark_detector_type.load(
             args.xray_path,
             args.label_path,
