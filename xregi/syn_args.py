@@ -3,6 +3,7 @@ import os
 
 
 def default_args():
+
     current_path = os.path.abspath(os.path.dirname(__file__))
     args = argparse.Namespace()
     args.xray_path = "data/xray"
