@@ -2,8 +2,7 @@ import argparse
 import os
 
 
-def default_args():
-
+def synthex_args():
     current_path = os.path.abspath(os.path.dirname(__file__))
     args = argparse.Namespace()
     args.xray_path = "data/xray"
@@ -21,7 +20,7 @@ def default_args():
     args.input_label_file_path = os.path.join(current_path, args.input_label_file_path)
     args.output_data_file_path = "data/output.h5"
     args.output_data_file_path = os.path.join(current_path, args.output_data_file_path)
-    
+
     args.rand = True
     args.pats = "01"
     args.no_gpu = True
@@ -40,3 +39,14 @@ def default_args():
     args.no_hdr = False
     args.threshold = 1
     return args
+
+
+def xreg_args():
+    path = {}
+    path["image_path_load"] = "data/x_ray1.dcm"
+    path["ct_path_load"] = "data/pelvis.nii.gz"
+    path["ct_segmentation_path"] = "data/pelvis_seg.nii.gz"
+    path["landmarks_2d_path"] = "data/own_data.csv"
+    path["landmarks_3d_path"] = "data/pelvis_regi_2d_3d_lands_wo_id.fcsv"
+
+    return path
