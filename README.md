@@ -39,6 +39,6 @@ reg_.solve()
 ## Contributors
 [Jiaming (Jeremy) Zhang](https://jeremyzz830.github.io/), MSE in Robotics, Johns Hopkins University
 
-Zhangcong She, MSE in Mechanical Engineering, Johns Hopkins University
+[Zhangcong She](https://github.com/shez12), MSE in Mechanical Engineering, Johns Hopkins University
 
 [Benjamin D. Killeen](https://benjamindkilleen.com/), PhD in Computer Science, Johns Hopkins University
