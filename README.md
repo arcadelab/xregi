@@ -22,12 +22,16 @@ pip install xregi
 On other environments, such as Windows, MacOS and Ubuntu，you may need to install xreg aside according to your system. The detailed information can be found at the `Building` section in the [README.md of xreg](https://github.com/rg2/xreg/blob/master/README.md)
 
 ### Install from source
-On ubuntu 20.04, download the source code and install it
+On ubuntu 20.04, download the source code and install it under xregi path
 ```bash
-
+pip install .
 ```
-Fetch the source data
+Fetch the source data and example images from [here](https://drive.google.com/drive/folders/1XzQgWfMVtkCq-Nnk2l_lE3UWeG2kEnyc?usp=share_link) or 
 ```bash
+wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1-FGszriem5Vr130kw0BYtKM1QXJnD3_f' -O real_label.h5
+
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=FILEID' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1hENQgZ0s1t0BzF28Ca8DaLJN7HFFf9p6" -O yy_checkpoint_net_20.pt && rm -rf /tmp/cookies.txt
+
 ```
 
 
