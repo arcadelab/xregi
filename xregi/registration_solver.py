@@ -124,12 +124,12 @@ class XregSolver(RegistrationSolver):
         -------
             XregSolver: XregSolver object
         """
-
-        image_load = (
-            read_xray_dicom(image_path_load)
-            if cam_param["img_type"] == "DICOM"
-            else read_xray_png(image_path_load)
-        )
+        if cam_param["img_type"] == "DICOM":
+            image_load = read_xray_dicom(image_path_load)
+        elif cam_param["img_type"] == "PNG":
+            read_xray_png(image_path_load)
+        else:
+            raise ValueError("Image type not supported")
 
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
 
