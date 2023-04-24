@@ -79,7 +79,12 @@ class SynthexDetector(LandmarkDetector):
 
     """
 
-    def __init__(self, image: np.ndarray, landmarks: Dict[str, np.ndarray], args: Optional[argparse.Namespace]):
+    def __init__(
+        self,
+        image: np.ndarray,
+        landmarks: Dict[str, np.ndarray],
+        args: Optional[argparse.Namespace],
+    ):
         self.args = synthex_args() if args is None else args
         super().__init__(image)
 
@@ -180,8 +185,6 @@ class SynthexDetector(LandmarkDetector):
         f = h5py.File(os.path.join(output_path, "synthex_input.h5"), "r")
         image = f[pats]["projs"]
         args = synthex_args()
-        
-
         return cls(image, None,args)
 
 

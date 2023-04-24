@@ -11,3 +11,11 @@ __pycache__/
 
 # Ignore vscode settings
 **/.vscode/
+
+# Ignore test scripts
+**/test.py
+**/test.ipynb
+**/test_*.py
+**/test_*.ipynb
+
+# 

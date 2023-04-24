@@ -118,14 +118,18 @@ class XregSolver(RegistrationSolver):
             ct_path_load (str): path to the CT scan
             landmarks_2d_path (str): path to the 2d landmarks
             landmarks_3d_path (str): path to the 3d landmarks
-            cam_param (dict[str, np.ndarray]): camera intrinsic and extrinsic parameters
+            cam_param (dict[str, np.ndarray]): camera intrinsic and extrinsic parameters, and the image type
 
         Returns:
         -------
             XregSolver: XregSolver object
         """
 
-        image_load = read_xray_dicom(image_path_load)
+        image_load = (
+            read_xray_dicom(image_path_load)
+            if cam_param["img_type"] == "DICOM"
+            else read_xray_png(image_path_load)
+        )
 
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
 
@@ -189,7 +193,7 @@ class XregSolver(RegistrationSolver):
         h5_file["proj-000"]["cam"]["num-cols"][...] = self.image.shape[1]
         h5_file["proj-000"]["cam"]["num-rows"][...] = self.image.shape[0]
 
-        h5_template.close()
+        # h5_template.close()
 
         # write the 2d landmarks to the HDF5 file
         landmark = LandmarkContainer("2d", self.landmarks_2D)
@@ -204,7 +208,7 @@ class XregSolver(RegistrationSolver):
             )
             # print(np.asarray(landmarks_2d.iloc[lm_idx].values))
             # h5_file['proj-000']['landmarks'][lms] = 0.0
-
+        h5_file.flush()
         h5_file.close()
 
     def solve(self, runOptions: str) -> np.ndarray:
@@ -233,10 +237,10 @@ class XregSolver(RegistrationSolver):
         xreg_path["3d_landmarks_path"] = self.path["landmark_3d_path"]
 
         xreg_path["result_path"] = os.path.join(
-            self.path["current_path"], "data/xreg_result_pose.h5"
+            self.path["current_path"], "../data/xreg_result_pose.h5"
         )
         xreg_path["debug_path"] = os.path.join(
-            self.path["current_path"], "data/xreg_debug_log.h5"
+            self.path["current_path"], "../data/xreg_debug_log.h5"
         )
 
         if runOptions == "run_reg":
@@ -354,10 +358,10 @@ if __name__ == "__main__":
         os.chmod(file_path, mode)
 
     reg_solver = XregSolver.load(
-        image_path_load="data/x_ray1.dcm",
+        image_path_load="../data/x_ray1.dcm",
         ct_path_load="data/pelvis.nii.gz",
         ct_segmentation_path="data/pelvis_seg.nii.gz",
-        landmarks_2d_path="data/own_data.csv",
+        landmarks_2d_path="../data/own_data.csv",
         landmarks_3d_path="data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
     )
 
