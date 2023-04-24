@@ -251,6 +251,28 @@ def read_xray_dicom(path, to_32_bit=False, voi_lut=True, fix_monochrome=True):
     return image
 
 
+def read_xray_png(path, to_32_bit=False):
+    """
+    Read the png file and return the pixel_array as a numpy array
+
+    Params:
+    -------
+    path: str
+        path to the png file
+
+    Returns:
+    --------
+    image: numpy array
+        the pixel_array of the x-ray image
+    """
+    image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+
+    if to_32_bit:
+        image = image.astype(np.float32)
+
+    return image
+
+
 def read_2d_landmarks(landmarks_dir: str) -> pd.DataFrame:
     """
     Read the 2D landmarks from the csv file

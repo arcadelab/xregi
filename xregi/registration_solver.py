@@ -118,14 +118,18 @@ class XregSolver(RegistrationSolver):
             ct_path_load (str): path to the CT scan
             landmarks_2d_path (str): path to the 2d landmarks
             landmarks_3d_path (str): path to the 3d landmarks
-            cam_param (dict[str, np.ndarray]): camera intrinsic and extrinsic parameters
+            cam_param (dict[str, np.ndarray]): camera intrinsic and extrinsic parameters, and the image type
 
         Returns:
         -------
             XregSolver: XregSolver object
         """
 
-        image_load = read_xray_dicom(image_path_load)
+        image_load = (
+            read_xray_dicom(image_path_load)
+            if cam_param["img_type"] == "DICOM"
+            else read_xray_png(image_path_load)
+        )
 
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
 
