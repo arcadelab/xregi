@@ -24,7 +24,10 @@ On other environments, such as Windows, MacOS and Ubuntu，you may need to insta
 ### Install from source
 On ubuntu 20.04, download the source code and install it under xregi path
 ```bash
-pip install .
+git clone https://github.com/shez12/xregi
+cd xregi
+git checkout master
+
 ```
 Fetch the source data and example images from [here](https://drive.google.com/drive/folders/1XzQgWfMVtkCq-Nnk2l_lE3UWeG2kEnyc?usp=share_link) or 
 ```bash
