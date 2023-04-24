@@ -1,6 +1,21 @@
 **.h5
 **.pt
 **/data
+**/data/*
 
 # Ignore all pycache folders
 **/__pycache__
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore vscode settings
+**/.vscode/
+
+# Ignore test scripts
+**/test.py
+**/test.ipynb
+**/test_*.py
+**/test_*.ipynb
+
+# 
