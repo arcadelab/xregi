@@ -201,22 +201,24 @@ def readh5(h5_path: str):
         key_list = list(f.keys())
 
         print(key_list[1])
-        sub_key = f["proj-000"].keys()
-        print(sub_key)
+        tp = f["TransformGroup/0/TransformParameters"]
+        print(tp[...])
+        tfp = f["TransformGroup/0/TransformFixedParameters"]
+        print(tfp[...])
 
-        data = f["proj-000/landmarks/GSN-l"]
-        # data = f['num-projs']
-        # data = [0,1]
-        print(data[...])
+        # data = f["proj-000/landmarks/GSN-l"]
+        # # data = f['num-projs']
+        # # data = [0,1]
+        # print(data[...])
 
-        image = np.array(data)
+        # image = np.array(data)
 
     # plt.imshow(image,'gray')
     # plt.show()
 
     f.close()
 
-    return image
+    return None
 
 
 def read_xray_dicom(path, to_32_bit=False, voi_lut=True, fix_monochrome=True):
@@ -493,4 +495,6 @@ if __name__ == "__main__":
 
     # x = 'sps_l'
     # dicom2h5("data/xray", "data/real_label.h5", "data")
+
+    readh5("data/xreg_result_pose.h5")
     pass
