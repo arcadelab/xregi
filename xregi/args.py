@@ -3,6 +3,37 @@ import os
 
 
 def synthex_args():
+    '''Default arguments for the landmark detector.
+
+    Returns:
+    -------
+        args: argparse.Namespace
+            Arguments for the landmark detector:
+                xray_path: str, path to the x-ray image folder which contains multiple dicom files
+                label_path: str, path to the label file
+                output_path: str, path to the output folder
+                input_data_file_path: str, path to the input data file
+                input_label_file_path: str, path to the input label file
+                output_data_file_path: str, path to the output data file
+                output_label_file_path: str, path to the output label file
+                output_landmark_file_path: str, path to the output landmark file
+                output_landmark_csv_file_path: str, path to the output landmark csv file
+                nets: str, path to the network file
+                rand: bool, whether to use random data
+                pats: str, patient id
+                no_gpu: bool, whether to use gpu
+                times: str, time
+                heat_file_path: str, path to the heat file
+                heats_group_path: str, path to the heat group in h5 file
+                out: str, path to the output csv file
+                pat: str, patient id
+                use_seg: str, path to the segmentation group in h5 file
+                hm_lvl: bool, whether to use heatmap level
+                ds_factor: int, downsample factor
+                no_hdr: bool, whether to use header
+                threshold: int, threshold
+
+            '''
     current_path = os.path.abspath(os.path.dirname(__file__))
     args = argparse.Namespace()
     args.xray_path = "data/xray"
@@ -42,6 +73,21 @@ def synthex_args():
 
 
 def xreg_args():
+    '''
+    Default arguments for the landmark registration.
+    
+    Returns:
+    -------
+        args: argparse.Namespace
+            Arguments for the landmark registration:
+                image_path_load: str, path to the x-ray image
+                ct_path: str, path to the ct image
+                ct_segmentation_path: str, path to the ct segmentation
+                landmarks_2d_path: str, path to the 2d landmarks
+                landmarks_3d_path: str, path to the 3d landmarks
+    
+    '''
+
     path = {}
     path["image_path_load"] = "data/x_ray1.dcm"
 
