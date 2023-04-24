@@ -133,6 +133,10 @@ class XregSolver(RegistrationSolver):
 
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
 
+        if ct_segmentation_path is None:
+            raise ValueError(
+                "CT segmentation path is not provided, please refer to [total segmentator](https://github.com/wasserth/TotalSegmentator)"
+            )
         return cls(
             image_load,
             landmarks_2d,
@@ -320,13 +324,17 @@ class XregSolver(RegistrationSolver):
         data_frame["land-name"] = land_name
         # print(data_frame["land-name"][0])
 
+        # remove the rows with -1 values
+        mask = (data_frame == -1).any(axis=1)
+        data_frame = data_frame.drop(index=data_frame[mask].index)
+
         for i in range(len(data_frame)):
             landmarks_2d[data_frame["land-name"][i]] = [
                 data_frame["row"][i],
                 data_frame["col"][i],
             ]
 
-        # print(landmarks_2d)
+        print(landmarks_2d)
         return landmarks_2d
 
 
@@ -357,12 +365,14 @@ if __name__ == "__main__":
         # change the permission bits of the file
         os.chmod(file_path, mode)
 
+    cam_params = {"intrinsic": np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])}
     reg_solver = XregSolver.load(
         image_path_load="../data/x_ray1.dcm",
         ct_path_load="data/pelvis.nii.gz",
         ct_segmentation_path="data/pelvis_seg.nii.gz",
         landmarks_2d_path="../data/own_data.csv",
         landmarks_3d_path="data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
+        cam_params=cam_params,
     )
 
     reg_solver.solve("run_reg")
