@@ -171,7 +171,7 @@ class XregSolver(RegistrationSolver):
         """
 
         h5_file = h5py.File(self.path["h5_path"], "w")
-        h5_file.create_dataset("num_projs", data=1, dtype="u8")
+        h5_file.create_dataset("num-projs", data=1, dtype="u8")
         h5_file.create_group("proj-000")
 
         with h5py.File(self.path["h5_path_template"], "r") as h5_template:
@@ -243,7 +243,7 @@ class XregSolver(RegistrationSolver):
             "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
         )
 
-        xreg_path["ct_segmentation_path"] = self.path["ct_path"]
+        xreg_path["ct_segmentation_path"] = self.path["ct_segmentation_path"]
         xreg_path["3d_landmarks_path"] = self.path["landmark_3d_path"]
 
         xreg_path["result_path"] = os.path.join(
@@ -261,8 +261,8 @@ class XregSolver(RegistrationSolver):
                     xreg_path["solver_path"],
                     xreg_path["ct_path"],
                     xreg_path["3d_landmarks_path"],
-                    # xreg_path["xray_path"],
-                    "data/example1_1_pd_003.h5",
+                    xreg_path["xray_path"],
+                    # "data/example1_1_pd_003.h5",
                     xreg_path["result_path"],
                     xreg_path["debug_path"],
                     "-s",  # option to use the segmentation to mask out the irrelevant part of the CT
@@ -283,7 +283,7 @@ class XregSolver(RegistrationSolver):
 
             f.close()
 
-            return tp[...]
+            # return tp[...]
 
         elif runOptions == "run_viz":
             print("run_viz is running ...")

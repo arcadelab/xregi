@@ -196,15 +196,15 @@ def readh5(h5_path: str):
     """
     with h5py.File(h5_path, "r") as f:
         # List all groups
-        print("Keys: %s" % f.keys())
+        # print("Keys: %s" % f.keys())
 
-        key_list = list(f.keys())
+        # key_list = list(f.keys())
 
-        print(key_list[1])
-        tp = f["TransformGroup/0/TransformParameters"]
-        print(tp[...])
-        tfp = f["TransformGroup/0/TransformFixedParameters"]
-        print(tfp[...])
+        # print(key_list[1])
+        # tp = f["TransformGroup/0/TransformParameters"]
+        # print(tp[...])
+        # tfp = f["TransformGroup/0/TransformFixedParameters"]
+        # print(tfp[...])
 
         # data = f["proj-000/landmarks/GSN-l"]
         # # data = f['num-projs']
@@ -212,6 +212,18 @@ def readh5(h5_path: str):
         # print(data[...])
 
         # image = np.array(data)
+        print(f.keys())
+        for key in f.keys():
+            if key != "num-projs":
+                print(key)
+                for subkey in f[key].keys():
+                    print(subkey)
+                    for subsubkey in f[key][subkey].keys():
+                        print(subsubkey)
+                        print(f[key][subkey][subsubkey][...])
+                    print("---------------------------------")
+            else:
+                print(f[key][...])
 
     # plt.imshow(image,'gray')
     # plt.show()
@@ -496,5 +508,6 @@ if __name__ == "__main__":
     # x = 'sps_l'
     # dicom2h5("data/xray", "data/real_label.h5", "data")
 
-    readh5("data/xreg_result_pose.h5")
+    # readh5("data/example1_1_pd_003.h5")
+    readh5("data/xreg_input.h5")
     pass
