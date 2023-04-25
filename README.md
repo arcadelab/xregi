@@ -33,6 +33,10 @@ On other environments, such as Windows, MacOS and Ubuntu，you may need to insta
 Synthex will be installed along with xregi. If you want to install it separately, here is the installation for SyntheX:
 ```bash
 conda install synthex
+ 
+ #or
+
+git clone https://github.com/arcadelab/SyntheX.git
 ```
 
 ## Xregi Installation Guide
@@ -47,20 +51,26 @@ pip install xregi
 On ubuntu 20.04, download the source code and install it under xregi path
 ```bash
 git clone https://github.com/shez12/xregi
-cd xregi
 git checkout master
 
 ```
 Fetch the source data and example images from [here](https://drive.google.com/drive/folders/1XzQgWfMVtkCq-Nnk2l_lE3UWeG2kEnyc?usp=share_link) or 
 ```bash
-wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1-FGszriem5Vr130kw0BYtKM1QXJnD3_f' -O real_label.h5
+#download data.zip
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1wjrxNE6B0pX3IooGxwC_cjf4n8MhxU1p' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1wjrxNE6B0pX3IooGxwC_cjf4n8MhxU1p" -O data.zip && rm -rf /tmp/cookies.txt
 
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=FILEID' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1hENQgZ0s1t0BzF28Ca8DaLJN7HFFf9p6" -O yy_checkpoint_net_20.pt && rm -rf /tmp/cookies.txt
-
+#unzip data.zip
+cd Downloads/
+unzip data.zip
 ```
 
 
 ## Usage
+Before using xregi, you need to move the data folder to xregi directory.
+```bash
+mv data xregi/
+```
+
 xregi supports command line interactions and API. To use the API, 
 ```python
 import xregi
