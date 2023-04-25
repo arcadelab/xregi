@@ -60,7 +60,7 @@ class Registration2D3D:
             cam_params,
         )
 
-        return registration_solver.solve()
+        return registration_solver.solve("run_reg")
 
     @classmethod
     def load(

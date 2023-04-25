@@ -61,7 +61,7 @@ wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download
 
 
 ## Usage
-xregi supports command line interactions and API. To use the 
+xregi supports command line interactions and API. To use the API, 
 ```python
 import xregi
 
@@ -72,6 +72,14 @@ reg_.solve()
 ...
 ```
 
+### Directory Specification
+navigate to the root directory of xregi
+```bash
+cd xregi
+```
+The directory structure is as follows:
+```bash
+```
 
 
 ## Contributors

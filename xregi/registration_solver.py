@@ -4,6 +4,7 @@ import subprocess
 from typing import Dict, List, Optional
 from utils import *
 from landmark_container import LandmarkContainer
+from args import *
 from abc import ABC, abstractmethod
 
 
@@ -86,16 +87,23 @@ class XregSolver(RegistrationSolver):
             image, landmarks_2D, ct_path, landmarks_3D, cam_param
         )  # not load the image here
 
+        # set default path
         current_path = os.path.abspath(os.path.dirname(__file__))
-
         self.path = path if path is not None else {}
         self.path["current_path"] = current_path
         self.path["ct_path"] = os.path.join(current_path, self.ct_path)
+        self.path["xray_path"] = os.path.join(current_path, "data/xreg_input.h5")
+        self.path["solver_path"] = os.path.join(
+            current_path,
+            "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
+        )
+        self.path["verifier_path"] = os.path.join(
+            current_path, "bin/xreg-regi2d3d-replay"
+        )
         self.path["h5_path_template"] = os.path.join(
             current_path, "data/example1_1_pd_003.h5"
         )
-        self.path["h5_path"] = os.path.join(current_path, "data/xreg_input.h5")
-        print(self.path)
+        # print(self.path)
 
         self.generate_h5()
 
@@ -170,7 +178,7 @@ class XregSolver(RegistrationSolver):
         the h5 file contains x-ray image and 2d landmarks
         """
 
-        h5_file = h5py.File(self.path["h5_path"], "w")
+        h5_file = h5py.File(self.path["xray_path"], "w")
         h5_file.create_dataset("num-projs", data=1, dtype="u8")
         h5_file.create_group("proj-000")
 
@@ -236,21 +244,12 @@ class XregSolver(RegistrationSolver):
 
         """
         xreg_path = {}
-        xreg_path["ct_path"] = self.path["ct_path"]
-        xreg_path["xray_path"] = self.path["h5_path"]
-        xreg_path["solver_path"] = os.path.join(
-            self.path["current_path"],
-            "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
-        )
-
-        xreg_path["ct_segmentation_path"] = self.path["ct_segmentation_path"]
-        xreg_path["3d_landmarks_path"] = self.path["landmark_3d_path"]
 
         xreg_path["result_path"] = os.path.join(
             self.path["current_path"], "data/xreg_result_pose.h5"
         )
         xreg_path["debug_path"] = os.path.join(
-            self.path["current_path"], "data/xreg_debug_log.h5"
+            self.path["current_path"], "data/xreg_result_debug.h5"
         )
 
         if runOptions == "run_reg":
@@ -258,15 +257,15 @@ class XregSolver(RegistrationSolver):
 
             result = subprocess.run(
                 [
-                    xreg_path["solver_path"],
-                    xreg_path["ct_path"],
-                    xreg_path["3d_landmarks_path"],
-                    xreg_path["xray_path"],
+                    self.path["solver_path"],
+                    self.path["ct_path"],
+                    self.path["landmark_3d_path"],
+                    self.path["xray_path"],
                     # "data/example1_1_pd_003.h5",
                     xreg_path["result_path"],
                     xreg_path["debug_path"],
                     "-s",  # option to use the segmentation to mask out the irrelevant part of the CT
-                    xreg_path["ct_segmentation_path"],
+                    self.path["ct_segmentation_path"],
                 ],
                 stdout=subprocess.PIPE,
             )
@@ -289,7 +288,7 @@ class XregSolver(RegistrationSolver):
             print("run_viz is running ...")
             result = subprocess.run(
                 [
-                    "bin/xreg-regi2d3d-replay",
+                    self.path["verifier_path"],
                     xreg_path["debug_path"],
                     "--video-fps",
                     "10",
@@ -360,20 +359,6 @@ class XregSolver(RegistrationSolver):
 
 
 if __name__ == "__main__":
-    # image = np.ones((3,3))
-
-    # lm_2d = {}
-    # lm_3d = {}
-
-    # lm_2d['sps_l'] = [1, 2]
-    # lm_2d['sps_r'] = [2, 3]
-    # lm_3d['gsn_l'] = [3, 4]
-    # lm_3d['gsn_r'] = [4, 5]
-
-    # xreg = XregSlover(image,lm_2d,lm_3d)
-    # x = xreg.get_2d_landmarks("data/own_data.csv")
-    # print(x.values())
-
     import os
 
     folder_path = "/home/jeremy/Documents/xregi-dev"
@@ -386,16 +371,13 @@ if __name__ == "__main__":
         # change the permission bits of the file
         os.chmod(file_path, mode)
 
-    cam_params = {
-        "intrinsic": np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
-        "img_type": "DICOM",
-    }
+    path, cam_params = xreg_args()
     reg_solver = XregSolver.load(
-        image_path_load="data/x_ray1.dcm",
-        ct_path_load="data/pelvis.nii.gz",
-        ct_segmentation_path="data/pelvis_seg.nii.gz",
-        landmarks_2d_path="data/own_data.csv",
-        landmarks_3d_path="data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
+        image_path_load=path["image_path_load"],
+        ct_path_load=path["ct_path_load"],
+        ct_segmentation_path=path["ct_segmentation_path"],
+        landmarks_2d_path=path["landmarks_2d_path"],
+        landmarks_3d_path=path["landmarks_3d_path"],
         cam_param=cam_params,
     )
 
