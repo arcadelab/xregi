@@ -13,13 +13,35 @@
 
 This is a python package for registering x-ray images and CT scans. It is based on the [xReg](https://github.com/rg2/xreg), a C++ library for medical image registration, and [synthex](https://github.com/arcadelab/SyntheX), a python package for synthetic x-ray imaging.
 
-## Installation
+## Third-party libraries
+Before you start, please make sure you have all the dependencies installed. The following libraries are required:
+- [Total Segmentator](https://github.com/wasserth/TotalSegmentator)
+- [xReg](https://github.com/rg2/xreg)
+- [SyntheX](https://github.com/arcadelab/SyntheX)
+
+### Install TotalSegmentator
+total segmentator can be installed through pip
+```bash
+pip install TotalSegmentator
+```
+
+### Install xReg
+xReg is a C++ library for medical image registration. It is used as the backend of xregi. To install xReg, please follow the instructions in the [README.md of xreg](https://github.com/rg2/xreg/blob/master/README.md)
+On other environments, such as Windows, MacOS and Ubuntu，you may need to install xreg aside according to your system. The detailed information can be found at the `Building` section in the README.md of xreg.
+
+### Install SyntheX
+Synthex will be installed along with xregi. If you want to install it separately, here is the installation for SyntheX:
+```bash
+conda install synthex
+```
+
+## Xregi Installation Guide
 ### Install through pip
 On ubuntu 20.04, simply install this package using pip
 ```bash
 pip install xregi
 ```
-On other environments, such as Windows, MacOS and Ubuntu，you may need to install xreg aside according to your system. The detailed information can be found at the `Building` section in the [README.md of xreg](https://github.com/rg2/xreg/blob/master/README.md)
+
 
 ### Install from source
 On ubuntu 20.04, download the source code and install it under xregi path
@@ -50,8 +72,7 @@ reg_.solve()
 ...
 ```
 
-## Third-party libraries
-- [Total Segmentator](https://github.com/wasserth/TotalSegmentator)
+
 
 ## Contributors
 [Jiaming (Jeremy) Zhang](https://jeremyzz830.github.io/), MSE in Robotics, Johns Hopkins University
