@@ -415,4 +415,4 @@ if __name__ == '__main__':
 
     # x = 'sps_l'
     # dicom2h5("data/xray", "data/real_label.h5", "data")
-    pass
+    file = readh5("data/synthex_input.h5")
