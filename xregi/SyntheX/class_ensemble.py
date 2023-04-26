@@ -27,8 +27,7 @@ class Ensemble:
             self.dev = torch.device("cpu")
             self.torch_map_loc = "cpu"
         else:
-            self.dev = torch.device(
-                "cuda:0" if torch.cuda.is_available() else "cpu")
+            self.dev = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     def loadnet(self) -> list:
         self.nets = []
@@ -97,8 +96,6 @@ class Ensemble:
         self.num_classes = num_classes
         self.proj_unet_dim = proj_unet_dim
         self.num_lands = num_lands
-
-        
 
     def savedata(self, input_data_file_path, input_label_file_path):
         self.src_data_file_path = input_data_file_path

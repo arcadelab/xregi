@@ -17,7 +17,7 @@ class Registration2D3D:
         self,
         image: np.ndarray,
         ct_path: str,
-        landmarks_3d: Dict[str, List[float, float, float]],
+        landmarks_3d: Dict[str, List[float]],
         intrinsic: np.ndarray,
     ):
         """
@@ -48,18 +48,19 @@ class Registration2D3D:
             args.output_path,
             "01",
         )
+        landmark_detector.run()
 
-        path = xreg_args()
-        landmarks_2d = landmark_detector.run()
+        path, cam_params = xreg_args()
         registration_solver = self.registration_solver_type(
             path["image_path_load"],
             path["ct_path_load"],
             path["ct_segmentation_path"],
             path["landmarks_2d_path"],
             path["landmarks_3d_path"],
+            cam_params,
         )
 
-        return registration_solver.solve()
+        return registration_solver.solve("run_reg")
 
     @classmethod
     def load(

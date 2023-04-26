@@ -116,6 +116,7 @@ class LandmarkContainer:
                 template["label"] = 0 if name_format[0][0].islower() else 1
 
         else:
+            raise ValueError("The naming format is not supported, please post an issue")
             pass  # TODO: add other naming format
 
         # if '-' in name_format else (name_format.split('_')).append('_')
@@ -127,6 +128,7 @@ class LandmarkContainer:
         elif "_" in names[0]:
             divider = "_"
         else:
+            raise ValueError("The naming format is not supported, please post an issue")
             pass  # TODO: add other naming format
 
         regulate_name = []

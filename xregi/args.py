@@ -3,7 +3,7 @@ import os
 
 
 def synthex_args():
-    '''Default arguments for the landmark detector.
+    """Default arguments for the landmark detector.
 
     Returns:
     -------
@@ -33,7 +33,7 @@ def synthex_args():
                 no_hdr: bool, whether to use header
                 threshold: int, threshold
 
-            '''
+    """
     current_path = os.path.abspath(os.path.dirname(__file__))
     args = argparse.Namespace()
     args.xray_path = "data/xray"
@@ -73,9 +73,9 @@ def synthex_args():
 
 
 def xreg_args():
-    '''
+    """
     Default arguments for the landmark registration.
-    
+
     Returns:
     -------
         args: argparse.Namespace
@@ -85,14 +85,19 @@ def xreg_args():
                 ct_segmentation_path: str, path to the ct segmentation
                 landmarks_2d_path: str, path to the 2d landmarks
                 landmarks_3d_path: str, path to the 3d landmarks
-    
-    '''
+
+    """
 
     path = {}
     path["image_path_load"] = "data/x_ray1.dcm"
+
     path["ct_path_load"] = "data/pelvis.nii.gz"
     path["ct_segmentation_path"] = "data/pelvis_seg.nii.gz"
     path["landmarks_2d_path"] = "data/own_data.csv"
     path["landmarks_3d_path"] = "data/pelvis_regi_2d_3d_lands_wo_id.fcsv"
 
-    return path
+    cam_params = {}
+    cam_params["intrinsic"] = [-5257.73, 0, 767.5, 0, -5257.73, 767.5, 0, 0, 1]
+    cam_params["img_type"] = "DICOM"
+
+    return path, cam_params
