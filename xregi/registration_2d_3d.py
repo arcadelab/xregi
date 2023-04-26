@@ -4,7 +4,7 @@ from typing import Type, Dict, List
 import pandas as pd
 from landmark_detector import SynthexDetector, LandmarkDetector
 from registration_solver import XregSolver, RegistrationSolver
-from args import synthex_args, xreg_args
+from args import synthex_args, xreg_args, cam_param
 
 
 class Registration2D3D:
@@ -68,7 +68,6 @@ class Registration2D3D:
         image_path_load: str,
         ct_path_load: str,
         landmarks_3d_path: str,
-        intrinsic_param: np.ndarray,
     ):
         """
         Initialize Registration2D3D class by loading image, ct, landmarks, intrinsic parameters from files with given paths
@@ -81,13 +80,24 @@ class Registration2D3D:
             intrinsic_param: np.ndarray, intrinsic parameters of the x-ray imaging system
 
         """
-        image_load = read_xray_dicom(image_path_load)
+        image_load, scale = preprocess_dicom(image_path_load, img_size=360)
         landmarks_3d = get_3d_landmarks(
             landmarks_3d_path, folder_type="fcsv", label_idx=11
         )
-        # intrinsic load from dicom?
+        # intrinsic params are hardcoded for now
+        intrinsic_param = scale * cam_param()["intrinsic"]
+        intrinsic_param[-1] = 1
+
+        print(intrinsic_param)
+
         return cls(image_load, ct_path_load, landmarks_3d, intrinsic_param)
 
 
 if __name__ == "__main__":
-    pass
+    path, camera_params = xreg_args()
+    reg2d3d = Registration2D3D.load(
+        "data/xray",
+        "data/ct/ct.dcm",
+        "data/landmarks/landmarks.fcsv",
+        camera_params["intrinsic"],
+    )

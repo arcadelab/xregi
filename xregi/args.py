@@ -95,9 +95,12 @@ def xreg_args():
     path["ct_segmentation_path"] = "data/pelvis_seg.nii.gz"
     path["landmarks_2d_path"] = "data/own_data.csv"
     path["landmarks_3d_path"] = "data/pelvis_regi_2d_3d_lands_wo_id.fcsv"
+    return path
 
+
+def cam_param():
     cam_params = {}
     cam_params["intrinsic"] = [-5257.73, 0, 767.5, 0, -5257.73, 767.5, 0, 0, 1]
     cam_params["img_type"] = "DICOM"
 
-    return path, cam_params
+    return cam_params

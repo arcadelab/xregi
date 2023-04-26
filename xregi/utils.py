@@ -430,31 +430,45 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     h5_reallabel.close()
 
 
-def resize_dicom(xray_path: str, img_size: int):
+def preprocess_dicom(dicom_path: str, img_size: int):
     """
     resize dicom image to a square image with size img_size
+
+    Args:
+    --------
+        dicom_path (str): path to dicom file
+        img_size (int): size of the output image
+
+    Returns:
+    --------
+        resized_image (np.array): resized image
+        scale (float): scale factor
     """
-    image_data = read_xray_dicom(xray_path)
+    image_data = read_xray_dicom(dicom_path, to_32_bit=True) / 200
 
     # check if image is square
     if image_data.shape[0] == image_data.shape[1]:
         pass
     else:
         warnings.warn("Image is not square, cropping image to square.")
-        image_data = image_data[
+        crop_image = image_data[
             0 : min(image_data.shape[0], image_data.shape[1]),
             0 : min(image_data.shape[0], image_data.shape[1]),
-        ]
+        ]  # crop image to square
 
-    row_start_idx = int((image_data.shape[0] - img_size) / 2)
-    row_end_idx = row_start_idx + img_size
-    col_start_idx = int((image_data.shape[1] - img_size) / 2)
-    col_end_idx = col_start_idx + img_size
+    # resize image to img_size
+    resized_image = cv2.resize(
+        crop_image, (img_size, img_size), interpolation=cv2.INTER_LINEAR
+    )
 
-    crop_image = image_data[row_start_idx:row_end_idx, col_start_idx:col_end_idx]
+    # calculate scale factor, to scale the intrinsic camera matrix
+    scale = crop_image.shape[0] / img_size
 
-    cv2.imwrite("data/test.png", crop_image)
-    return crop_image
+    image_name = (
+        dicom_path.split(".")[0] + ".png"
+    )  # save the image as png with same name as dicom file
+    cv2.imwrite(image_name, crop_image)
+    return resized_image, scale
 
 
 if __name__ == "__main__":
@@ -480,5 +494,6 @@ if __name__ == "__main__":
     # dicom2h5("data/xray", "data/real_label.h5", "data")
 
     # readh5("data/example1_1_pd_003.h5")
-    readh5("data/real_label.h5")
+    # readh5("data/real_label.h5")
+    x, y = preprocess_dicom("data/xray/x_ray1.dcm", 360)
     pass
