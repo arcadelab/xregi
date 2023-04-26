@@ -87,7 +87,9 @@ class XregSolver(RegistrationSolver):
             image, landmarks_2D, ct_path, landmarks_3D, cam_param
         )  # not load the image here
 
-        # set default path
+        ############################################
+        ########### set default path ###############
+        ############################################
         current_path = os.path.abspath(os.path.dirname(__file__))
         self.path = path if path is not None else {}
         self.path["current_path"] = current_path
@@ -103,6 +105,13 @@ class XregSolver(RegistrationSolver):
         self.path["h5_path_template"] = os.path.join(
             current_path, "data/example1_1_pd_003.h5"
         )
+        self.path["result_path"] = os.path.join(
+            current_path, "data/xreg_result_pose.h5"
+        )
+        self.path["debug_path"] = os.path.join(
+            current_path, "data/xreg_result_debug.h5"
+        )
+
         # print(self.path)
 
         self.generate_h5()
@@ -134,8 +143,10 @@ class XregSolver(RegistrationSolver):
         """
         if cam_param["img_type"] == "DICOM":
             image_load = read_xray_dicom(image_path_load)
+
         elif cam_param["img_type"] == "PNG":
             read_xray_png(image_path_load)
+
         else:
             raise ValueError("Image type not supported")
 
@@ -204,13 +215,11 @@ class XregSolver(RegistrationSolver):
                                 dtype=h5_template["proj-000"][key][dataset].dtype,
                             )
                 else:
-                    pass
+                    pass  # skip the landmarks group and create it later
         h5_template.close()
 
         h5_file["proj-000"]["cam"]["num-cols"][...] = self.image.shape[1]
         h5_file["proj-000"]["cam"]["num-rows"][...] = self.image.shape[0]
-
-        # h5_template.close()
 
         # write the 2d landmarks to the HDF5 file
         landmark = LandmarkContainer("2d", self.landmarks_2D)
@@ -243,15 +252,8 @@ class XregSolver(RegistrationSolver):
             None
 
         """
-        xreg_path = {}
 
-        xreg_path["result_path"] = os.path.join(
-            self.path["current_path"], "data/xreg_result_pose.h5"
-        )
-        xreg_path["debug_path"] = os.path.join(
-            self.path["current_path"], "data/xreg_result_debug.h5"
-        )
-
+        # calling the executable file for registration
         if runOptions == "run_reg":
             print("run_reg is running ...")
 
@@ -262,8 +264,8 @@ class XregSolver(RegistrationSolver):
                     self.path["landmark_3d_path"],
                     self.path["xray_path"],
                     # "data/example1_1_pd_003.h5",
-                    xreg_path["result_path"],
-                    xreg_path["debug_path"],
+                    self.path["result_path"],
+                    self.path["debug_path"],
                     "-s",  # option to use the segmentation to mask out the irrelevant part of the CT
                     self.path["ct_segmentation_path"],
                 ],
@@ -274,7 +276,7 @@ class XregSolver(RegistrationSolver):
             print(result.stdout.decode())
 
             # extract the projection matrix from the resulting h5 file
-            with h5py.File(xreg_path["result_path"], "r") as f:
+            with h5py.File(self.path["result_path"], "r") as f:
                 tp = f["TransformGroup/0/TransformParameters"]
                 print("The projection matrix is: \n", tp[...])
                 tfp = f["TransformGroup/0/TransformFixedParameters"]
@@ -284,12 +286,13 @@ class XregSolver(RegistrationSolver):
 
             # return tp[...]
 
+        # calling the executable file for visualization
         elif runOptions == "run_viz":
             print("run_viz is running ...")
             result = subprocess.run(
                 [
                     self.path["verifier_path"],
-                    xreg_path["debug_path"],
+                    self.path["debug_path"],
                     "--video-fps",
                     "10",
                     "--proj-ds",

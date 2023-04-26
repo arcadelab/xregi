@@ -77,6 +77,11 @@ navigate to the root directory of xregi
 ```bash
 cd xregi
 ```
+create a directory named `data` and put the data under it.
+```bash
+mkdir data
+```
+
 The directory structure is as follows:
 ```bash
 ```
