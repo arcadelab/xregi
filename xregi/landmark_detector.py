@@ -5,7 +5,7 @@ import SyntheX.class_ensemble as class_ensemble
 from SyntheX.est_land_csv import est_land_csv
 from typing import List, Dict, Optional
 import argparse
-from args import synthex_args
+import json
 
 
 class LandmarkDetector(ABC):
@@ -80,8 +80,9 @@ class SynthexDetector(LandmarkDetector):
     """
 
     def __init__(self, image: np.ndarray, landmarks: Dict[str, np.ndarray], args: Optional[argparse.Namespace]):
-        self.args = synthex_args() if args is None else args
+        self.args = args if args is not None else {}
         super().__init__(image)
+
 
     @property
     def landmarks(self) -> List[str]:
@@ -111,7 +112,7 @@ class SynthexDetector(LandmarkDetector):
     @image_path.setter
     def image_path(self, image_path):
         print("image_path: ", image_path)
-        dicom2h5(image_path, self.args.label_path,self.args.output_path)
+        dicom2h5(image_path, self.args["label_path"],self.args["output_path"])
         self._image_path = image_path
         return self._image_path
 
@@ -123,7 +124,7 @@ class SynthexDetector(LandmarkDetector):
             self.args: args from syn_args.py
             
         """
-        self.output_data_file_path = self.args.output_data_file_path
+        self.output_data_file_path = self.args["output_data_file_path"]
         self.ensemble_seg = class_ensemble.Ensemble(self.args)
         self.ensemble_seg.loadnet()
 
@@ -135,7 +136,7 @@ class SynthexDetector(LandmarkDetector):
             self.args: args from syn_args.py
             
         """
-        self.ensemble_seg.savedata(self.args.input_data_file_path, self.args.input_label_file_path)
+        self.ensemble_seg.savedata(self.args["input_data_file_path"], self.args["input_label_file_path"])
 
     def detect(self):
         """
@@ -179,10 +180,12 @@ class SynthexDetector(LandmarkDetector):
         dicom2h5(xray_folder_path, label_path, output_path)
         f = h5py.File(os.path.join(output_path, "synthex_input.h5"), "r")
         image = f[pats]["projs"]
-        args = synthex_args()
+        with open('config/config.json') as f:
+            data = json.load(f)
+        f.close()
         
 
-        return cls(image, None,args)
+        return cls(image, None,data)
 
 
 if __name__ == "__main__":

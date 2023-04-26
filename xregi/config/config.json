@@ -2,7 +2,7 @@
   "nets": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/yy_checkpoint_net_20.pt",
   "xray_path": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/xray",
   "rand": true,
-  "pats": 1,
+  "pats": "01",
   "no_gpu": true,
   "times": "",
   "heats_group_path": "nn-heats",

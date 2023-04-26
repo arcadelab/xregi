@@ -9,21 +9,21 @@ import os
 class Ensemble:
     def __init__(self, args) -> None:
         self.args = args
-        self.network_paths = self.args.nets
+        self.network_paths = self.args["nets"]
 
-        self.dst_data_file_path = self.args.output_data_file_path
+        self.dst_data_file_path = self.args["output_data_file_path"]
 
-        self.rand = self.args.rand
-        assert self.args.pats is not None
+        self.rand = self.args["rand"]
+        assert self.args["pats"] is not None
         self.test_pats = (
-            [i for i in self.args.pats.split(",")]
+            [i for i in self.args["pats"].split(",")]
             if self.rand
-            else [int(i) for i in self.args.pats.split(",")]
+            else [int(i) for i in self.args["pats"].split(",")]
         )
         assert len(self.test_pats) > 0
         self.torch_map_loc = None
 
-        if self.args.no_gpu:
+        if self.args["no_gpu"]:
             self.dev = torch.device("cpu")
             self.torch_map_loc = "cpu"
         else:
@@ -158,8 +158,8 @@ class Ensemble:
         f.flush()
         f.close()
 
-        if self.args.times:
-            times_out = open(self.args.times, "w")
+        if self.args["times"]:
+            times_out = open(self.args["times"], "w")
             for t in times:
                 times_out.write("{:.6f}\n".format(t))
             times_out.flush()

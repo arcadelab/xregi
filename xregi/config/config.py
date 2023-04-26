@@ -3,7 +3,7 @@ import os
   
 # Read Existing JSON File
 def config_json(xray_path, net_path):
-    with open('config.json') as f:
+    with open('config/config.json') as f:
         data = json.load(f)
     f.close()
     

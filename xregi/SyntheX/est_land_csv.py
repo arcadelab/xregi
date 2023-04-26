@@ -41,24 +41,24 @@ def est_land_csv(args):
 
     # args = parser.parse_args()
 
-    heat_file_path = args.heat_file_path
-    heats_group_path = args.heats_group_path
+    heat_file_path = args["heat_file_path"]
+    heats_group_path = args["heats_group_path"]
 
-    out_csv_path = args.out
+    out_csv_path = args["out"]
 
-    rand = args.rand
+    rand = args["rand"]
 
-    hm_lvl = args.hm_lvl
+    hm_lvl = args["hm_lvl"]
 
-    ds_factor = args.ds_factor
+    ds_factor = args["ds_factor"]
 
-    pat_ind = args.pat if rand else int(args.pat)
+    pat_ind = args["pat"] if rand else int(args["pat"])
 
-    no_csv_hdr = args.no_hdr
+    no_csv_hdr = args["no_hdr"]
 
-    seg_ds_path = args.use_seg
+    seg_ds_path = args["use_seg"]
 
-    threshold = args.threshold
+    threshold = args["threshold"]
 
     land_names = get_land_names_from_dataset(heat_file_path)
 
