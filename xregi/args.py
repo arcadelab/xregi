@@ -98,7 +98,7 @@ def xreg_args():
     return path
 
 
-def cam_param():
+def cam_params():
     cam_params = {}
     cam_params["intrinsic"] = [-5257.73, 0, 767.5, 0, -5257.73, 767.5, 0, 0, 1]
     cam_params["img_type"] = "DICOM"

@@ -4,7 +4,7 @@ from typing import Type, Dict, List
 import pandas as pd
 from landmark_detector import SynthexDetector, LandmarkDetector
 from registration_solver import XregSolver, RegistrationSolver
-from args import synthex_args, xreg_args, cam_param
+from args import synthex_args, xreg_args, cam_params
 
 
 class Registration2D3D:
@@ -85,7 +85,7 @@ class Registration2D3D:
             landmarks_3d_path, folder_type="fcsv", label_idx=11
         )
         # intrinsic params are hardcoded for now
-        intrinsic_param = scale * cam_param()["intrinsic"]
+        intrinsic_param = scale * cam_params()["intrinsic"]
         intrinsic_param[-1] = 1
 
         print(intrinsic_param)

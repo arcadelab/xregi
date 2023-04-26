@@ -124,7 +124,7 @@ class XregSolver(RegistrationSolver):
         ct_segmentation_path: str,
         landmarks_2d_path: str,
         landmarks_3d_path: str,
-        cam_param: Dict[str, np.ndarray] = None,
+        cam_params: Dict[str, np.ndarray] = None,
     ):
         """
         Load the image and landmarks from local file with given path
@@ -141,15 +141,18 @@ class XregSolver(RegistrationSolver):
         -------
             XregSolver: XregSolver object
         """
-        if cam_param["img_type"] == "DICOM":
-            image_load = read_xray_dicom(image_path_load)
 
-        elif cam_param["img_type"] == "PNG":
-            read_xray_png(image_path_load)
+        # load the image with specified type
+        if cam_params["img_type"] == "DICOM":
+            image_load, scale = preprocess_dicom(image_path_load, 360)
+
+        elif cam_params["img_type"] == "PNG":
+            image_load = read_xray_png(image_path_load)
 
         else:
             raise ValueError("Image type not supported")
 
+        # print("Image loaded", image_load)
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
 
         if ct_segmentation_path is None:
@@ -228,9 +231,13 @@ class XregSolver(RegistrationSolver):
 
         # print(landmark_2d.keys())
         for lms in landmark_2d.keys():
-            print(lms)
+            # print(lms)
+            landmark_values = np.reshape(
+                np.asarray([landmark_2d[lms][1], landmark_2d[lms][0]]), (2, 1)
+            )
+            print(landmark_values)
             h5_file["proj-000"]["landmarks"].create_dataset(
-                name=lms, data=np.reshape(np.asarray(landmark_2d[lms]), (2, 1))
+                name=lms, data=landmark_values
             )
 
             # print(np.asarray(landmarks_2d.iloc[lm_idx].values))
@@ -374,14 +381,15 @@ if __name__ == "__main__":
         # change the permission bits of the file
         os.chmod(file_path, mode)
 
-    path, cam_params = xreg_args()
+    path = xreg_args()
+    cam_params = cam_params()
     reg_solver = XregSolver.load(
         image_path_load=path["image_path_load"],
         ct_path_load=path["ct_path_load"],
         ct_segmentation_path=path["ct_segmentation_path"],
         landmarks_2d_path=path["landmarks_2d_path"],
         landmarks_3d_path=path["landmarks_3d_path"],
-        cam_param=cam_params,
+        cam_params=cam_params,
     )
 
     reg_solver.solve("run_reg")

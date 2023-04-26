@@ -245,4 +245,4 @@ if __name__ == "__main__":
 
         return landmarks_2d
 
-    print(get_2d_landmarks(r"data\own_data.csv"))
+    print(get_2d_landmarks("data/own_data.csv"))
