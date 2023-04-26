@@ -32,11 +32,9 @@ On other environments, such as Windows, MacOS and Ubuntu，you may need to insta
 ### Install SyntheX
 Synthex will be installed along with xregi. If you want to install it separately, here is the installation for SyntheX:
 ```bash
-conda install synthex
- 
- #or
-
 git clone https://github.com/arcadelab/SyntheX.git
+cd /SyntheX
+conda install .
 ```
 
 ## Xregi Installation Guide
