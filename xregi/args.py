@@ -1,4 +1,5 @@
 import argparse
+import numpy as np
 import os
 
 
@@ -99,7 +100,16 @@ def xreg_args():
 
 def cam_params():
     cam_params = {}
-    cam_params["intrinsic"] = [[-5257.73, 0, 767.5], [0, -5257.73, 767.5], [0, 0, 1]]
+    cam_params["intrinsic"] = np.asarray(
+        [[-5257.73, 0, 767.5], [0, -5257.73, 767.5], [0, 0, 1]]
+    )
     cam_params["img_type"] = "DICOM"
 
     return cam_params
+
+
+if __name__ == "__main__":
+    x = cam_params()
+    y = x["intrinsic"] * 0.5
+    y[-1, -1] = 1
+    print(y)
