@@ -18,4 +18,9 @@ __pycache__/
 **/test_*.py
 **/test_*.ipynb
 
-# 
+# Ignore the result videos
+*.mp4
+*.avi
+*.gif
+*.mov
+

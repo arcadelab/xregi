@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import cv2
+import warnings
 
 
 def get_3d_landmarks(
@@ -196,27 +197,49 @@ def readh5(h5_path: str):
     """
     with h5py.File(h5_path, "r") as f:
         # List all groups
-        print("Keys: %s" % f.keys())
+        # print("Keys: %s" % f.keys())
 
-        key_list = list(f.keys())
+        # key_list = list(f.keys())
 
-        print(key_list[1])
-        sub_key = f["proj-000"].keys()
-        print(sub_key)
+        # print(key_list[1])
+        # tp = f["TransformGroup/0/TransformParameters"]
+        # print(tp[...])
+        # tfp = f["TransformGroup/0/TransformFixedParameters"]
+        # print(tfp[...])
 
-        data = f["proj-000/landmarks/GSN-l"]
-        # data = f['num-projs']
-        # data = [0,1]
-        print(data[...])
+        # data = f["proj-000/landmarks/GSN-l"]
+        # # data = f['num-projs']
+        # # data = [0,1]
+        # print(data[...])
 
-        image = np.array(data)
+        # image = np.array(data)
+        print(f.keys())
+        for key in f.keys():
+            if key != "num-projs":
+                print(key)
+                for subkey in f[key].keys():
+                    print(subkey)
+
+                    if subkey == "lands":
+                        print(f[key][subkey][...])
+
+                    elif subkey == "gt-poses":
+                        for subsubkey in f[key][subkey].keys():
+                            print(subsubkey)
+                            print(f[key][subkey][subsubkey][...])
+
+                    elif subkey == "segs":
+                        print(f[key][subkey][...].shape)
+                    print("---------------------------------")
+            else:
+                print(f[key][...])
 
     # plt.imshow(image,'gray')
     # plt.show()
 
     f.close()
 
-    return image
+    return None
 
 
 def read_xray_dicom(path, to_32_bit=False, voi_lut=True, fix_monochrome=True):
@@ -293,89 +316,6 @@ def read_2d_landmarks(landmarks_dir: str) -> pd.DataFrame:
     return landmarks
 
 
-def generate_xreg_input(xray_dir: str, landmarks_dir: str, output_dir: str):
-    """
-    Generate the input files for xreg
-
-    Params:
-    -------
-    xray_dir: str
-        path to the directory of the x-ray images
-    landmarks_dir: str
-        path to the directory of the landmarks
-    output_dir: str
-        path to the directory of the output HDF5 file
-
-    Returns:
-    --------
-        None
-
-    """
-    # read the x-ray image
-    xray_image = read_xray_dicom(xray_dir)
-
-    # read the 2d landmarks
-    landmarks_2d = read_2d_landmarks(landmarks_dir)
-
-    # create the HDF5 file that contains the x-ray image and the 2d landmarks
-    h5_file = h5py.File(output_dir, "w")
-    h5_file.create_dataset("num_projs", data=1, dtype="u8")
-    h5_file.create_group("proj-000")
-
-    # write the x-ray image and to the HDF5 file
-    with h5py.File("data/example1_1_pd_003.h5", "r") as h5_template:
-        for key in h5_template["proj-000"].keys():
-            # print(h5_template['proj-000'][key].values())
-            h5_file["proj-000"].create_group(key)
-            for dataset in h5_template["proj-000"][key].keys():
-                # print(dataset)
-
-                if dataset == "pixels":
-                    h5_file["proj-000"][key].create_dataset(
-                        dataset,
-                        data=xray_image,
-                        dtype=h5_template["proj-000"][key][dataset].dtype,
-                    )
-                else:
-                    h5_file["proj-000"][key].create_dataset(
-                        dataset,
-                        data=h5_template["proj-000"][key][dataset][...],
-                        dtype=h5_template["proj-000"][key][dataset].dtype,
-                    )
-
-    h5_file["proj-000"]["cam"]["num-cols"][...] = xray_image.shape[1]
-    h5_file["proj-000"]["cam"]["num-rows"][...] = xray_image.shape[0]
-
-    h5_template.close()
-
-    # write the 2d landmarks to the HDF5 file
-    lm_names_synthex = [
-        "FH-l",
-        "FH-r",
-        "GSN-l",
-        "GSN-r",
-        "IOF-l",
-        "IOF-r",
-        "MOF-l",
-        "MOF-r",
-        "SPS-l",
-        "SPS-r",
-        "IPS-l",
-        "IPS-r",
-        "ASIS-l",
-        "ASIS-r",
-    ]  # this is the order of the landmarks in the SyntheX dataset
-
-    for lms in h5_file["proj-000"]["landmarks"].keys():
-        lm_idx = lm_names_synthex.index(lms)
-
-        h5_file["proj-000"]["landmarks"][lms][...] = np.reshape(
-            np.asarray(landmarks_2d.iloc[lm_idx].values)[1:], (2, 1)
-        )
-        # print(np.asarray(landmarks_2d.iloc[lm_idx].values))
-        # h5_file['proj-000']['landmarks'][lms] = 0.0
-
-
 def read_ct_dicom(ct_path: str):
     pass
 
@@ -433,17 +373,19 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
             )
             label_dataset_names[()] = landmarks[i].encode("utf-8")
 
-    # Create the dataset with the appropriate shape
-    dataset_shape = (num_images, 360, 360)
-    dataset = grp.create_dataset("projs", dataset_shape, dtype="f4")
     # Store all images in the dataset
     for i, file_name in enumerate(file_names):
         file_path = os.path.join(xray_folder_path, file_name)
-        image_data = read_xray_dicom(file_path)
-        resized_image_data = cv2.resize(
-            image_data, (360, 360), interpolation=cv2.INTER_LINEAR
-        )  # Add this line
-        dataset[i, :, :] = resized_image_data
+
+        img_shape = 360  # 360 is the default size of the image in synthex
+        image_data, scale = preprocess_dicom(file_path, img_shape)
+        if i == 0:
+            # Create the dataset with the appropriate shape
+            dataset_shape = (num_images, img_shape, img_shape)
+            dataset = grp.create_dataset("projs", dataset_shape, dtype="f4")
+
+        print(image_data.shape)
+        dataset[i, :, :] = image_data
 
     # currently unkown of camera paras, now just copy content from label_real.h5
     real_label = h5py.File(label_path, "r")
@@ -457,19 +399,85 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
         label_grp_gtpose_content = real_label["01"]["gt-poses"][group_name]
         gtpose_dataset = label_grp_gtpose.create_dataset(group_name, (4, 4), dtype="f4")
         gtpose_dataset[()] = label_grp_gtpose_content
-    # lands part
-    label_grp_lands = label_grp.create_dataset("lands", (num_images, 2, 14), dtype="f4")
-    label_grp_lands[()] = real_label["01"]["lands"][0:num_images]
-    # segs part
-    label_grp_segs = label_grp.create_dataset(
-        "segs", (num_images, 360, 360), dtype="|u1"
+
+    # complete the rest part of label_grp
+    # "lands" part
+    label_grp_lands = label_grp.create_dataset(
+        "lands",
+        (num_images, 2, 14),
+        data=real_label["01"]["lands"][0:num_images],
+        dtype="f4",
     )
-    label_grp_segs[()] = real_label["01"]["segs"][0:num_images]
+
+    # "segs" part
+    label_grp_segs = label_grp.create_dataset(
+        "segs",
+        (num_images, img_shape, img_shape),
+        data=np.zeros((num_images, img_shape, img_shape)),
+        dtype="|u1",
+    )
 
     # Close the HDF5 file to save changes
     h5_file.close()
     real_label.close()
     h5_reallabel.close()
+
+
+def preprocess_dicom(dicom_path: str, img_size: int):
+    """
+    resize dicom image to a square image with size img_size
+
+    Args:
+    --------
+        dicom_path (str): path to dicom file
+        img_size (int): size of the output image
+
+    Returns:
+    --------
+        resized_image (np.array): resized image
+        scale (float): scale factor
+    """
+    # check if the img_size is provided correctly
+    assert isinstance(img_size, int), "img_size should be an integer"
+    assert img_size > 0, "img_size should be larger than 0"
+
+    origin_image = read_xray_dicom(dicom_path, to_32_bit=True) / 200
+
+    # check if image is square
+    if origin_image.shape[0] == origin_image.shape[1]:
+        pass
+    else:
+        warnings.warn("Image is not square, cropping image to square.")
+        crop_image = origin_image[
+            0 : min(origin_image.shape[0], origin_image.shape[1]),
+            0 : min(origin_image.shape[0], origin_image.shape[1]),
+        ]  # crop image to square
+
+    # resize image to img_size
+    resized_image = cv2.resize(
+        crop_image, (img_size, img_size), interpolation=cv2.INTER_LINEAR
+    )
+
+    # calculate scale factor, to scale the intrinsic camera matrix
+    scale = crop_image.shape[0] / img_size
+
+    image_name = os.path.join(
+        os.path.dirname(__file__),
+        "data/png",
+        os.path.basename(dicom_path).split(".")[0] + ".png",
+    )  # save the image as png with same name as dicom file
+
+    print(image_name)
+    cv2.imwrite(image_name, resized_image)
+    return resized_image, scale
+
+
+def gen_synthex_h5(image_data: np.ndarray, label_path: str, output_path: str):
+    """
+    generate synthex h5 file from image data and label file
+    """
+
+    pass
 
 
 if __name__ == "__main__":
@@ -493,4 +501,8 @@ if __name__ == "__main__":
 
     # x = 'sps_l'
     # dicom2h5("data/xray", "data/real_label.h5", "data")
+
+    # readh5("data/example1_1_pd_003.h5")
+    # readh5("data/real_label.h5")
+    x, y = preprocess_dicom("data/xray/x_ray1.dcm", 360)
     pass
