@@ -376,22 +376,15 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     # Store all images in the dataset
     for i, file_name in enumerate(file_names):
         file_path = os.path.join(xray_folder_path, file_name)
-        image_data = resize_dicom(file_path, 360)
 
-        img_shape = min(image_data.shape[0], image_data.shape[1]) * np.ones(
-            (2,), dtype=int
-        )
-        print(img_shape[0])
-        image_data = cv2.resize(
-            image_data, (img_shape[0], img_shape[1]), interpolation=cv2.INTER_LINEAR
-        )  # Add this line
-        # dataset[i, :, :] = resized_image_data
-
+        img_shape = 360  # 360 is the default size of the image in synthex
+        image_data, scale = preprocess_dicom(file_path, img_shape)
         if i == 0:
             # Create the dataset with the appropriate shape
-            dataset_shape = (num_images, img_shape[0], img_shape[1])
+            dataset_shape = (num_images, img_shape, img_shape)
             dataset = grp.create_dataset("projs", dataset_shape, dtype="f4")
 
+        print(image_data.shape)
         dataset[i, :, :] = image_data
 
     # currently unkown of camera paras, now just copy content from label_real.h5
@@ -419,8 +412,8 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     # "segs" part
     label_grp_segs = label_grp.create_dataset(
         "segs",
-        (num_images, img_shape[0], img_shape[1]),
-        data=np.zeros((num_images, img_shape[0], img_shape[1])),
+        (num_images, img_shape, img_shape),
+        data=np.zeros((num_images, img_shape, img_shape)),
         dtype="|u1",
     )
 
@@ -430,31 +423,61 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     h5_reallabel.close()
 
 
-def resize_dicom(xray_path: str, img_size: int):
+def preprocess_dicom(dicom_path: str, img_size: int):
     """
     resize dicom image to a square image with size img_size
+
+    Args:
+    --------
+        dicom_path (str): path to dicom file
+        img_size (int): size of the output image
+
+    Returns:
+    --------
+        resized_image (np.array): resized image
+        scale (float): scale factor
     """
-    image_data = read_xray_dicom(xray_path)
+    # check if the img_size is provided correctly
+    assert isinstance(img_size, int), "img_size should be an integer"
+    assert img_size > 0, "img_size should be larger than 0"
+
+    origin_image = read_xray_dicom(dicom_path, to_32_bit=True) / 200
 
     # check if image is square
-    if image_data.shape[0] == image_data.shape[1]:
+    if origin_image.shape[0] == origin_image.shape[1]:
         pass
     else:
         warnings.warn("Image is not square, cropping image to square.")
-        image_data = image_data[
-            0 : min(image_data.shape[0], image_data.shape[1]),
-            0 : min(image_data.shape[0], image_data.shape[1]),
-        ]
+        crop_image = origin_image[
+            0 : min(origin_image.shape[0], origin_image.shape[1]),
+            0 : min(origin_image.shape[0], origin_image.shape[1]),
+        ]  # crop image to square
 
-    row_start_idx = int((image_data.shape[0] - img_size) / 2)
-    row_end_idx = row_start_idx + img_size
-    col_start_idx = int((image_data.shape[1] - img_size) / 2)
-    col_end_idx = col_start_idx + img_size
+    # resize image to img_size
+    resized_image = cv2.resize(
+        crop_image, (img_size, img_size), interpolation=cv2.INTER_LINEAR
+    )
 
-    crop_image = image_data[row_start_idx:row_end_idx, col_start_idx:col_end_idx]
+    # calculate scale factor, to scale the intrinsic camera matrix
+    scale = crop_image.shape[0] / img_size
 
-    cv2.imwrite("data/test.png", crop_image)
-    return crop_image
+    image_name = os.path.join(
+        os.path.dirname(__file__),
+        "data/png",
+        os.path.basename(dicom_path).split(".")[0] + ".png",
+    )  # save the image as png with same name as dicom file
+
+    print(image_name)
+    cv2.imwrite(image_name, resized_image)
+    return resized_image, scale
+
+
+def gen_synthex_h5(image_data: np.ndarray, label_path: str, output_path: str):
+    """
+    generate synthex h5 file from image data and label file
+    """
+
+    pass
 
 
 if __name__ == "__main__":
@@ -480,5 +503,6 @@ if __name__ == "__main__":
     # dicom2h5("data/xray", "data/real_label.h5", "data")
 
     # readh5("data/example1_1_pd_003.h5")
-    readh5("data/real_label.h5")
+    # readh5("data/real_label.h5")
+    x, y = preprocess_dicom("data/xray/x_ray1.dcm", 360)
     pass

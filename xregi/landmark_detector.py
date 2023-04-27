@@ -71,7 +71,7 @@ class SynthexDetector(LandmarkDetector):
     -------
         image(np.ndarray): x-ray image in the shape of (# of image, height, width)
         landmarks(dict[str, np.ndarray]): 3d landmarks in the shape of (landmark name, [x, y, z])
-    
+
     Returns:
     -------
         create csv file with 2D coordinates of landmarks
@@ -79,14 +79,18 @@ class SynthexDetector(LandmarkDetector):
 
     """
 
-    def __init__(self, image: np.ndarray, landmarks: Dict[str, np.ndarray], args: Optional[argparse.Namespace]):
+    def __init__(
+        self,
+        image: np.ndarray,
+        landmarks: Dict[str, np.ndarray],
+        args: Optional[argparse.Namespace],
+    ):
         self.args = args if args is not None else {}
         super().__init__(image)
 
-
     @property
     def landmarks(self) -> List[str]:
-        self.landmarks  = [
+        self.landmarks = [
             "FH-l",
             "FH-r",
             "GSN-l",
@@ -101,18 +105,17 @@ class SynthexDetector(LandmarkDetector):
             "IPS-r",
             "ASIS-l",
             "ASIS-r",
-        ] 
+        ]
         return self.landmarks
-
 
     @property
     def image_path(self):
         return self._image_path
-    
+
     @image_path.setter
     def image_path(self, image_path):
         print("image_path: ", image_path)
-        dicom2h5(image_path, self.args["label_path"],self.args["output_path"])
+        dicom2h5(image_path, self.args["label_path"], self.args["output_path"])
         self._image_path = image_path
         return self._image_path
 
@@ -122,7 +125,7 @@ class SynthexDetector(LandmarkDetector):
         Args:
         -------
             self.args: args from syn_args.py
-            
+
         """
         self.output_data_file_path = self.args["output_data_file_path"]
         self.ensemble_seg = class_ensemble.Ensemble(self.args)
@@ -134,9 +137,11 @@ class SynthexDetector(LandmarkDetector):
         Args:
         -------
             self.args: args from syn_args.py
-            
+
         """
-        self.ensemble_seg.savedata(self.args["input_data_file_path"], self.args["input_label_file_path"])
+        self.ensemble_seg.savedata(
+            self.args["input_data_file_path"], self.args["input_label_file_path"]
+        )
 
     def detect(self):
         """
@@ -144,17 +149,17 @@ class SynthexDetector(LandmarkDetector):
         Args:
         -------
             self.args: args from syn_args.py
-            
+
         """
         est_land_csv(self.args)
-    
+
     def run(self):
         """
         run landmark detection
         Args:
         -------
             self.args: args from syn_args.py
-            
+
         """
         self.load_data()
         self.savedata()
@@ -171,7 +176,7 @@ class SynthexDetector(LandmarkDetector):
             label_path(str): path to label
             output_path(str): path to output
             pats(str): patient id
-        
+
         Returns:
         -------
             SynthexDetector: Synthex landmark detector
@@ -180,12 +185,11 @@ class SynthexDetector(LandmarkDetector):
         dicom2h5(xray_folder_path, label_path, output_path)
         f = h5py.File(os.path.join(output_path, "synthex_input.h5"), "r")
         image = f[pats]["projs"]
-        with open('config/config.json') as f:
+        with open("config/config.json") as f:
             data = json.load(f)
         f.close()
-        
 
-        return cls(image, None,data)
+        return cls(image, None, data)
 
 
 if __name__ == "__main__":
@@ -193,6 +197,7 @@ if __name__ == "__main__":
     syn.load_data()
     syn.savedata()
     syn.detect()
+
     def get_2d_landmarks(landmarks_path: str) -> dict:
         """Get 2D landmarks from the csv file
         Params:
@@ -239,7 +244,5 @@ if __name__ == "__main__":
             ]
 
         return landmarks_2d
-      
-    print(get_2d_landmarks(r"data\own_data.csv"))
 
-
+    print(get_2d_landmarks("data/own_data.csv"))
