@@ -4,7 +4,8 @@ from typing import Type, Dict, List
 import pandas as pd
 from landmark_detector import SynthexDetector, LandmarkDetector
 from registration_solver import XregSolver, RegistrationSolver
-from args import synthex_args, xreg_args, cam_params
+from args import xreg_args, cam_param
+import json
 
 
 class Registration2D3D:
@@ -41,17 +42,13 @@ class Registration2D3D:
         run the registration process and return the 3d coordinates of landmarks
 
         """
-        args = synthex_args()
-        landmark_detector = self.landmark_detector_type.load(
-            args.xray_path,
-            args.label_path,
-            args.output_path,
-            "01",
-        )
+
+        landmark_detector = self.landmark_detector_type.load()
         landmark_detector.run()
 
-        path, cam_params = xreg_args()
-        registration_solver = self.registration_solver_type(
+        path = xreg_args()
+        cam_params = cam_param()
+        registration_solver = self.registration_solver_type.load(
             path["image_path_load"],
             path["ct_path_load"],
             path["ct_segmentation_path"],
@@ -60,15 +57,11 @@ class Registration2D3D:
             cam_params,
         )
 
-        return registration_solver.solve("run_reg")
+        registration_solver.solve("run_reg")
+        registration_solver.solve("run_viz")
 
     @classmethod
-    def load(
-        cls,
-        image_path_load: str,
-        ct_path_load: str,
-        landmarks_3d_path: str,
-    ):
+    def load(cls):
         """
         Initialize Registration2D3D class by loading image, ct, landmarks, intrinsic parameters from files with given paths
 
@@ -80,17 +73,21 @@ class Registration2D3D:
             intrinsic_param: np.ndarray, intrinsic parameters of the x-ray imaging system
 
         """
-        image_load, scale = preprocess_dicom(image_path_load, img_size=360)
-        landmarks_3d = get_3d_landmarks(
-            landmarks_3d_path, folder_type="fcsv", label_idx=11
+        ##read json file
+        with open("config/config.json") as f:
+            data = json.load(f)
+
+        resized_image, image_load, scale = preprocess_dicom(
+            data["image_path"], img_size=360
         )
+        landmarks_3d = get_3d_landmarks(data["landmarks_3d_path"], "fcsv", 11)
         # intrinsic params are hardcoded for now
-        intrinsic_param = scale * cam_params()["intrinsic"]
-        intrinsic_param[-1] = 1
+        # intrinsic_param = scale * cam_params()["intrinsic"]
+        # intrinsic_param[-1] = 1
 
-        print(intrinsic_param)
+        # print(intrinsic_param)
 
-        return cls(image_load, ct_path_load, landmarks_3d, intrinsic_param)
+        return cls(image_load, data["ct_path"], landmarks_3d, None)
 
 
 if __name__ == "__main__":

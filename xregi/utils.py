@@ -378,7 +378,7 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
         file_path = os.path.join(xray_folder_path, file_name)
 
         img_shape = 360  # 360 is the default size of the image in synthex
-        image_data, scale = preprocess_dicom(file_path, img_shape)
+        image_data, origin_image, scale = preprocess_dicom(file_path, img_shape)
         if i == 0:
             # Create the dataset with the appropriate shape
             dataset_shape = (num_images, img_shape, img_shape)
@@ -441,6 +441,7 @@ def preprocess_dicom(dicom_path: str, img_size: int):
     assert isinstance(img_size, int), "img_size should be an integer"
     assert img_size > 0, "img_size should be larger than 0"
 
+    # read dicom image and limit the
     origin_image = read_xray_dicom(dicom_path, to_32_bit=True) / 200
 
     # check if image is square
@@ -467,9 +468,9 @@ def preprocess_dicom(dicom_path: str, img_size: int):
         os.path.basename(dicom_path).split(".")[0] + ".png",
     )  # save the image as png with same name as dicom file
 
-    print(image_name)
-    cv2.imwrite(image_name, resized_image)
-    return resized_image, scale
+    # print(image_name)
+    cv2.imwrite(image_name, origin_image)
+    return resized_image, origin_image, scale
 
 
 def gen_synthex_h5(image_data: np.ndarray, label_path: str, output_path: str):
