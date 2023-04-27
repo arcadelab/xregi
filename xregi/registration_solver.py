@@ -144,7 +144,7 @@ class XregSolver(RegistrationSolver):
 
         # load the image with specified type
         if cam_params["img_type"] == "DICOM":
-            image_load, scale = preprocess_dicom(image_path_load, 360)
+            resized_img, image_load, scale = preprocess_dicom(image_path_load, 360)
 
         elif cam_params["img_type"] == "PNG":
             image_load = read_xray_png(image_path_load)
@@ -213,9 +213,14 @@ class XregSolver(RegistrationSolver):
                                 dtype=h5_template["proj-000"][key][dataset].dtype,
                             )
                         elif dataset == "intrinsic":
+                            # intrinsic_param = (
+                            #     cam_params["intrinsic"] / cam_params["scale"]
+                            # )
+                            # intrinsic_param[-1, -1] = 1
+
                             h5_file["proj-000"][key].create_dataset(
                                 dataset,
-                                data=cam_params["scale"] * cam_params["intrinsic"],
+                                data=cam_params["intrinsic"],
                                 dtype=h5_template["proj-000"][key][dataset].dtype,
                             )
                         else:
@@ -240,7 +245,7 @@ class XregSolver(RegistrationSolver):
         # print(landmark_2d.keys())
         for lms in landmark_2d.keys():
             # print(lms)
-            landmark_values = np.reshape(
+            landmark_values = self.cam_param["scale"] * np.reshape(
                 np.asarray([landmark_2d[lms][1], landmark_2d[lms][0]]), (2, 1)
             )
             print(landmark_values)
