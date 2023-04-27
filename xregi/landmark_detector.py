@@ -166,7 +166,7 @@ class SynthexDetector(LandmarkDetector):
         self.detect()
 
     @classmethod
-    def load(cls, xray_folder_path, label_path, output_path, pats):
+    def load(cls):
         """
         load data from x-ray image and label based on json file
 
@@ -179,8 +179,8 @@ class SynthexDetector(LandmarkDetector):
             data = json.load(f)
         f.close()
         dicom2h5(data["xray_path"], data["label_path"], data["output_path"])
-        f = h5py.File(os.path.join(output_path, "synthex_input.h5"), "r")
-        image = f[pats]["projs"]
+        f = h5py.File(os.path.join(data["output_path"], "synthex_input.h5"), "r")
+        image = f[data["pats"]]["projs"]
         return cls(image, None, data)
 
 

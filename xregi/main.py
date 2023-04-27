@@ -33,7 +33,13 @@ parser.add_argument(
 args = parser.parse_args()
 
 ## run config.py to set environment variables
-config_json(args.xray_folder_path, args.checkpoint_path)
+config_json(
+    args.xray_folder_path,
+    args.checkpoint_path,
+    args.ct_path,
+    args.landmarks_3d_path,
+    args.CT_segmentation_path,
+)
 
 
 ## run registration_2d_3d.py

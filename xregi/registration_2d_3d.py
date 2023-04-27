@@ -4,7 +4,7 @@ from typing import Type, Dict, List
 import pandas as pd
 from landmark_detector import SynthexDetector, LandmarkDetector
 from registration_solver import XregSolver, RegistrationSolver
-from args import  xreg_args, cam_params
+from args import xreg_args, cam_param
 import json
 
 
@@ -46,8 +46,9 @@ class Registration2D3D:
         landmark_detector = self.landmark_detector_type.load()
         landmark_detector.run()
 
-        path, cam_params = xreg_args()
-        registration_solver = self.registration_solver_type(
+        path = xreg_args()
+        cam_params = cam_param()
+        registration_solver = self.registration_solver_type.load(
             path["image_path_load"],
             path["ct_path_load"],
             path["ct_segmentation_path"],
@@ -56,12 +57,11 @@ class Registration2D3D:
             cam_params,
         )
 
-        return registration_solver.solve("run_reg")
+        registration_solver.solve("run_reg")
+        registration_solver.solve("run_viz")
 
     @classmethod
-    def load(
-        cls
-    ):
+    def load(cls):
         """
         Initialize Registration2D3D class by loading image, ct, landmarks, intrinsic parameters from files with given paths
 
@@ -77,17 +77,17 @@ class Registration2D3D:
         with open("config/config.json") as f:
             data = json.load(f)
 
-        image_load, scale = preprocess_dicom(data["xray_path"], img_size=360)
-        landmarks_3d = get_3d_landmarks(
-            data['landmarks_3d_path'], folder_type="fcsv", label_idx=11
+        resized_image, image_load, scale = preprocess_dicom(
+            data["image_path"], img_size=360
         )
+        landmarks_3d = get_3d_landmarks(data["landmarks_3d_path"], "fcsv", 11)
         # intrinsic params are hardcoded for now
-        intrinsic_param = scale * cam_params()["intrinsic"]
-        intrinsic_param[-1] = 1
+        # intrinsic_param = scale * cam_params()["intrinsic"]
+        # intrinsic_param[-1] = 1
 
-        print(intrinsic_param)
+        # print(intrinsic_param)
 
-        return cls(image_load, data["ct_path"], landmarks_3d, intrinsic_param)
+        return cls(image_load, data["ct_path"], landmarks_3d, None)
 
 
 if __name__ == "__main__":

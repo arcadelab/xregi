@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import os
 
+
 def xreg_args():
     """
     Default arguments for the landmark registration.
@@ -27,7 +28,7 @@ def xreg_args():
     return path
 
 
-def cam_params():
+def cam_param():
     cam_params = {}
     cam_params["intrinsic"] = np.asarray(
         [[-5257.73, 0, 767.5], [0, -5257.73, 767.5], [0, 0, 1]]
@@ -38,7 +39,7 @@ def cam_params():
 
 
 if __name__ == "__main__":
-    x = cam_params()
+    x = cam_param()
     y = x["intrinsic"] * 0.5
     y[-1, -1] = 1
     print(y)

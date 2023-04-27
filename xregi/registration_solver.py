@@ -67,7 +67,7 @@ class XregSolver(RegistrationSolver):
         landmarks_2D: Dict[str, np.ndarray],
         ct_path: str,
         landmarks_3D: Dict[str, List[float]],
-        cam_param: Dict[str, np.ndarray],
+        cam_params: Dict[str, np.ndarray],
         path: Optional[Dict[str, str]],
     ):
         """
@@ -83,10 +83,11 @@ class XregSolver(RegistrationSolver):
             path (dict[str, str]): dictionary contains the path to the xreg input and output files
 
         """
-        super().__init__(
-            image, landmarks_2D, ct_path, landmarks_3D, cam_param
-        )  # not load the image here
 
+        super().__init__(
+            image, landmarks_2D, ct_path, landmarks_3D, cam_params
+        )  # not load the image here
+        self.cam_params = cam_params
         ############################################
         ########### set default path ###############
         ############################################
@@ -151,7 +152,6 @@ class XregSolver(RegistrationSolver):
 
         else:
             raise ValueError("Image type not supported")
-
         cam_params["scale"] = scale
         # print("Image loaded", image_load)
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
@@ -217,10 +217,10 @@ class XregSolver(RegistrationSolver):
                             #     cam_params["intrinsic"] / cam_params["scale"]
                             # )
                             # intrinsic_param[-1, -1] = 1
-
+                            print("here is cam", self.cam_params)
                             h5_file["proj-000"][key].create_dataset(
                                 dataset,
-                                data=cam_params["intrinsic"],
+                                data=self.cam_params["intrinsic"],
                                 dtype=h5_template["proj-000"][key][dataset].dtype,
                             )
                         else:
@@ -395,7 +395,7 @@ if __name__ == "__main__":
         os.chmod(file_path, mode)
 
     path = xreg_args()
-    cam_params = cam_params()
+    cam_params = cam_param()
     reg_solver = XregSolver.load(
         image_path_load=path["image_path_load"],
         ct_path_load=path["ct_path_load"],

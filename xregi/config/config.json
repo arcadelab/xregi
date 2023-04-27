@@ -1,6 +1,6 @@
 {
-  "nets": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/yy_checkpoint_net_20.pt",
-  "xray_path": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/xray",
+  "nets": "/home/jeremy/Documents/xregi/xregi/data/yy_checkpoint_net_20.pt",
+  "xray_path": "/home/jeremy/Documents/xregi/xregi/data/xray",
   "rand": true,
   "pats": "01",
   "no_gpu": true,
@@ -12,11 +12,15 @@
   "ds_factor": 4,
   "no_hdr": false,
   "threshold": 1,
-  "label_path": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/real_label.h5",
-  "output_path": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data",
-  "input_data_file_path": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/synthex_input.h5",
-  "input_label_file_path": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/synthex_label_input.h5",
-  "output_data_file_path": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/output.h5",
-  "heat_file_path": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/output.h5",
-  "out": "c:\\Users\\zhangcong\\Desktop\\xregi2\\xregi\\data/own_data.csv"
+  "label_path": "/home/jeremy/Documents/xregi/xregi/data/real_label.h5",
+  "output_path": "/home/jeremy/Documents/xregi/xregi/data",
+  "input_data_file_path": "/home/jeremy/Documents/xregi/xregi/data/synthex_input.h5",
+  "input_label_file_path": "/home/jeremy/Documents/xregi/xregi/data/synthex_label_input.h5",
+  "output_data_file_path": "/home/jeremy/Documents/xregi/xregi/data/output.h5",
+  "heat_file_path": "/home/jeremy/Documents/xregi/xregi/data/output.h5",
+  "out": "/home/jeremy/Documents/xregi/xregi/data/own_data.csv",
+  "ct_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis.nii.gz",
+  "landmarks_3d_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
+  "CT_segmentation_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis_seg.nii.gz",
+  "image_path": "/home/jeremy/Documents/xregi/xregi/data/xray/x_ray1.dcm"
 }
