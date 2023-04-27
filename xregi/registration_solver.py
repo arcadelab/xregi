@@ -152,6 +152,7 @@ class XregSolver(RegistrationSolver):
         else:
             raise ValueError("Image type not supported")
 
+        cam_params["scale"] = scale
         # print("Image loaded", image_load)
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
 
@@ -164,7 +165,7 @@ class XregSolver(RegistrationSolver):
             landmarks_2d,
             ct_path_load,
             None,
-            None,
+            cam_params,
             {
                 "landmark_3d_path": landmarks_3d_path,
                 "ct_segmentation_path": ct_segmentation_path,
@@ -211,12 +212,19 @@ class XregSolver(RegistrationSolver):
                                 data=self.image,
                                 dtype=h5_template["proj-000"][key][dataset].dtype,
                             )
+                        elif dataset == "intrinsic":
+                            h5_file["proj-000"][key].create_dataset(
+                                dataset,
+                                data=cam_params["scale"] * cam_params["intrinsic"],
+                                dtype=h5_template["proj-000"][key][dataset].dtype,
+                            )
                         else:
                             h5_file["proj-000"][key].create_dataset(
                                 dataset,
                                 data=h5_template["proj-000"][key][dataset][...],
                                 dtype=h5_template["proj-000"][key][dataset].dtype,
                             )
+
                 else:
                     pass  # skip the landmarks group and create it later
         h5_template.close()
