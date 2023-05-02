@@ -13,7 +13,6 @@ def config_json(xray_path, net_path, ct_path, landmarks_3d_path, CT_segmentation
     current_path = os.path.dirname(current_path)
 
     data["xray_path"] = os.path.join(current_path, xray_path)
-    data["image_path"] = os.path.join(current_path, xray_path, "x_ray1.dcm")
     data["nets"] = os.path.join(current_path, net_path)
     data["ct_path"] = os.path.join(current_path, ct_path)
     data["landmarks_3d_path"] = os.path.join(current_path, landmarks_3d_path)

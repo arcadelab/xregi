@@ -4,7 +4,7 @@ from typing import Type, Dict, List
 import pandas as pd
 from landmark_detector import SynthexDetector, LandmarkDetector
 from registration_solver import XregSolver, RegistrationSolver
-from args import xreg_args, cam_param
+from args import cam_param
 import json
 
 
@@ -45,14 +45,14 @@ class Registration2D3D:
 
         landmark_detector = self.landmark_detector_type.load()
         landmark_detector.run()
-
-        path = xreg_args()
+        with open("config/config.json","r") as f:
+            path = json.load(f)
         cam_params = cam_param()
         registration_solver = self.registration_solver_type.load(
-            path["image_path_load"],
-            path["ct_path_load"],
-            path["ct_segmentation_path"],
-            path["landmarks_2d_path"],
+            path["image_path"],
+            path["ct_path"],
+            path["CT_segmentation_path"],
+            path["out"],
             path["landmarks_3d_path"],
             cam_params,
         )
@@ -74,11 +74,15 @@ class Registration2D3D:
 
         """
         ##read json file
-        with open("config/config.json") as f:
+        with open("config/config.json","r") as f:
             data = json.load(f)
+        image_path = newestfile(data["xray_path"])
+        data["image_path"] = image_path
+        with open("config/config.json", 'w') as file:
+            json.dump(data, file)
 
         resized_image, image_load, scale = preprocess_dicom(
-            data["image_path"], img_size=360
+            image_path, img_size=360
         )
         landmarks_3d = get_3d_landmarks(data["landmarks_3d_path"], "fcsv", 11)
         # intrinsic params are hardcoded for now
@@ -91,10 +95,11 @@ class Registration2D3D:
 
 
 if __name__ == "__main__":
-    path, camera_params = xreg_args()
-    reg2d3d = Registration2D3D.load(
-        "data/xray",
-        "data/ct/ct.dcm",
-        "data/landmarks/landmarks.fcsv",
-        camera_params["intrinsic"],
-    )
+    # path, camera_params = xreg_args()
+    # reg2d3d = Registration2D3D.load(
+    #     "data/xray",
+    #     "data/ct/ct.dcm",
+    #     "data/landmarks/landmarks.fcsv",
+    #     camera_params["intrinsic"],
+    # )
+    pass

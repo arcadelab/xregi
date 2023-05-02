@@ -9,6 +9,22 @@ import os
 import cv2
 import warnings
 
+def newestfile(directory):
+    """
+    get the newest file in the folder
+    """
+    # get a list of all files in the directory
+    files = os.listdir(directory)
+
+    # sort the files by modification time (newest first)
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(directory, x)), reverse=True)
+
+    # get the name of the newest file
+    newest_file = files[0]
+
+    #find absolute path
+    newest_file = os.path.join(directory, newest_file)
+    return newest_file
 
 def get_3d_landmarks(
     source_file_path: str, source_file_type: str, label_idx: int = 11
@@ -326,12 +342,9 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     label_path = os.path.join(current_path, label_path)
     output_path = os.path.join(current_path, output_path)
 
-    file_names = [
-        f
-        for f in os.listdir(xray_folder_path)
-        if os.path.isfile(os.path.join(xray_folder_path, f))
-    ]
-    num_images = len(file_names)
+    file_names=[newestfile(xray_folder_path)]
+    print("***", file_names)
+    num_images = 1
 
     # Create an HDF5 file
     h5_file = h5py.File(os.path.join(output_path, "synthex_input.h5"), "w")
@@ -446,7 +459,10 @@ def preprocess_dicom(dicom_path: str, img_size: int):
 
     # check if image is square
     if origin_image.shape[0] == origin_image.shape[1]:
-        pass
+        crop_image = origin_image[
+            0 : origin_image.shape[0],
+            0 : origin_image.shape[0],
+        ]
     else:
         warnings.warn("Image is not square, cropping image to square.")
         crop_image = origin_image[
@@ -481,6 +497,7 @@ def gen_synthex_h5(image_data: np.ndarray, label_path: str, output_path: str):
     pass
 
 
+
 if __name__ == "__main__":
     # source_file_path = 'data/case-100114/landmarks.fcsv'
     # source_file_type = 'fcsv'
@@ -505,5 +522,6 @@ if __name__ == "__main__":
 
     # readh5("data/example1_1_pd_003.h5")
     # readh5("data/real_label.h5")
-    x, y = preprocess_dicom("data/xray/x_ray1.dcm", 360)
-    pass
+    # x, y = preprocess_dicom("data/xray/x_ray1.dcm", 360)
+    # pass
+    print(newestfile('data/xray'))

@@ -357,10 +357,12 @@ class XregSolver(RegistrationSolver):
 
         landmarks_2d = {}
         data_frame = pd.read_csv(landmarks_path)
+        print(landmarks_path)
+        print(data_frame)
         data_frame = pd.DataFrame.drop(
             data_frame, columns=["pat", "proj", "time", "land"], axis=1
         )
-
+        
         # add the column for the landmark names
         data_frame["land-name"] = land_name
 
@@ -382,31 +384,32 @@ class XregSolver(RegistrationSolver):
 
 
 if __name__ == "__main__":
-    import os
+    pass
+    # import os
 
-    folder_path = "/home/jeremy/Documents/xregi-dev"
-    mode = 0o777  # permission bits in octal
+    # folder_path = "/home/jeremy/Documents/xregi-dev"
+    # mode = 0o777  # permission bits in octal
 
-    # iterate over all files in the folder
-    for file_name in os.listdir(folder_path):
-        # construct the full file path
-        file_path = os.path.join(folder_path, file_name)
-        # change the permission bits of the file
-        os.chmod(file_path, mode)
+    # # iterate over all files in the folder
+    # for file_name in os.listdir(folder_path):
+    #     # construct the full file path
+    #     file_path = os.path.join(folder_path, file_name)
+    #     # change the permission bits of the file
+    #     os.chmod(file_path, mode)
 
-    path = xreg_args()
-    cam_params = cam_param()
-    reg_solver = XregSolver.load(
-        image_path_load=path["image_path_load"],
-        ct_path_load=path["ct_path_load"],
-        ct_segmentation_path=path["ct_segmentation_path"],
-        landmarks_2d_path=path["landmarks_2d_path"],
-        landmarks_3d_path=path["landmarks_3d_path"],
-        cam_params=cam_params,
-    )
+    # path = xreg_args()
+    # cam_params = cam_param()
+    # reg_solver = XregSolver.load(
+    #     image_path_load=path["image_path_load"],
+    #     ct_path_load=path["ct_path_load"],
+    #     ct_segmentation_path=path["ct_segmentation_path"],
+    #     landmarks_2d_path=path["landmarks_2d_path"],
+    #     landmarks_3d_path=path["landmarks_3d_path"],
+    #     cam_params=cam_params,
+    # )
 
-    reg_solver.solve("run_reg")
-    reg_solver.solve("run_viz")
+    # reg_solver.solve("run_reg")
+    # reg_solver.solve("run_viz")
 
     # x = {}
     # x['sps_l'] = [1, 2]

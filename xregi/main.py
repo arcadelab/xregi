@@ -5,28 +5,33 @@ import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "xray_folder_path",
+    "--xray_folder_path",
     type=str,
+    required=True,
     help="path to the x-ray image folder which contains multiple dicom files",
 )
 parser.add_argument(
-    "ct_path",
+    "--ct_path",
     type=str,
+    required=True,
     help="path to the CT scan file",
 )
 parser.add_argument(
-    "landmarks_3d_path",
+    "--landmarks_3d_path",
     type=str,
+    required=True,
     help="path to the 3d landmarks file, currently only support fcsv file",
 )
 parser.add_argument(
-    "CT_segmentation_path",
+    "--CT_segmentation_path",
     type=str,
+    required=True,
     help="path to the CT segmentation file, currently only support nrrd file",
 )
 parser.add_argument(
-    "checkpoint_path",
+    "--checkpoint_path",
     type=str,
+    required=True,
     help="path to the checkpoint file",
 )
 # Parse the arguments provided by the user
