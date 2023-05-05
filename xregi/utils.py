@@ -9,6 +9,7 @@ import os
 import cv2
 import warnings
 
+
 def newestfile(directory):
     """
     get the newest file in the folder
@@ -22,9 +23,10 @@ def newestfile(directory):
     # get the name of the newest file
     newest_file = files[0]
 
-    #find absolute path
+    # find absolute path
     newest_file = os.path.join(directory, newest_file)
     return newest_file
+
 
 def get_3d_landmarks(
     source_file_path: str, source_file_type: str, label_idx: int = 11
@@ -290,7 +292,7 @@ def read_xray_dicom(path, to_32_bit=False, voi_lut=True, fix_monochrome=True):
     return image
 
 
-def read_xray_png(path, to_32_bit=False):
+def read_xray_png(path, img_size, to_32_bit=False):
     """
     Read the png file and return the pixel_array as a numpy array
 
@@ -304,12 +306,35 @@ def read_xray_png(path, to_32_bit=False):
     image: numpy array
         the pixel_array of the x-ray image
     """
-    image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    origin_image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
     if to_32_bit:
         image = image.astype(np.float32)
 
-    return image
+    # read dicom image and limit the
+
+    # check if image is square
+    if origin_image.shape[0] == origin_image.shape[1]:
+        crop_image = origin_image[
+            0 : origin_image.shape[0],
+            0 : origin_image.shape[0],
+        ]
+    else:
+        warnings.warn("Image is not square, cropping image to square.")
+        crop_image = origin_image[
+            0 : min(origin_image.shape[0], origin_image.shape[1]),
+            0 : min(origin_image.shape[0], origin_image.shape[1]),
+        ]  # crop image to square
+
+    # resize image to img_size
+    resized_image = cv2.resize(
+        crop_image, (img_size, img_size), interpolation=cv2.INTER_LINEAR
+    )
+
+    # calculate scale factor, to scale the intrinsic camera matrix
+    scale = crop_image.shape[0] / img_size
+
+    return resized_image, origin_image, scale
 
 
 def read_2d_landmarks(landmarks_dir: str) -> pd.DataFrame:
@@ -342,7 +367,7 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     label_path = os.path.join(current_path, label_path)
     output_path = os.path.join(current_path, output_path)
 
-    file_names=[newestfile(xray_folder_path)]
+    file_names = [newestfile(xray_folder_path)]
     print("***", file_names)
     num_images = 1
 
@@ -497,7 +522,6 @@ def gen_synthex_h5(image_data: np.ndarray, label_path: str, output_path: str):
     pass
 
 
-
 if __name__ == "__main__":
     # source_file_path = 'data/case-100114/landmarks.fcsv'
     # source_file_type = 'fcsv'
@@ -524,4 +548,4 @@ if __name__ == "__main__":
     # readh5("data/real_label.h5")
     # x, y = preprocess_dicom("data/xray/x_ray1.dcm", 360)
     # pass
-    print(newestfile('data/xray'))
+    print(newestfile("data/xray"))

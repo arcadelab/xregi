@@ -19,7 +19,7 @@ class Registration2D3D:
         image: np.ndarray,
         ct_path: str,
         landmarks_3d: Dict[str, List[float]],
-        intrinsic: np.ndarray,
+        cam_paras: Dict[str, np.ndarray],
     ):
         """
         Initialize Registration2D3D class
@@ -35,7 +35,7 @@ class Registration2D3D:
         self.image = image
         self.ct_path = ct_path
         self.landmarks_3d = landmarks_3d
-        self.intrinsic = intrinsic
+        self.cam_params = cam_paras
 
     def run(self):
         """
@@ -45,16 +45,16 @@ class Registration2D3D:
 
         landmark_detector = self.landmark_detector_type.load()
         landmark_detector.run()
-        with open("config/config.json","r") as f:
+        with open("config/config.json", "r") as f:
             path = json.load(f)
-        cam_params = cam_param()
+
         registration_solver = self.registration_solver_type.load(
             path["image_path"],
             path["ct_path"],
             path["CT_segmentation_path"],
             path["out"],
             path["landmarks_3d_path"],
-            cam_params,
+            self.cam_params,
         )
 
         registration_solver.solve("run_reg")
@@ -74,16 +74,24 @@ class Registration2D3D:
 
         """
         ##read json file
-        with open("config/config.json","r") as f:
+        with open("config/config.json", "r") as f:
             data = json.load(f)
         image_path = newestfile(data["xray_path"])
         data["image_path"] = image_path
-        with open("config/config.json", 'w') as file:
+        with open("config/config.json", "w") as file:
             json.dump(data, file)
 
-        resized_image, image_load, scale = preprocess_dicom(
-            image_path, img_size=360
-        )
+        cam_params = cam_param()
+        print("image_path", image_path)
+        if cam_params["img_type"] == "DICOM":
+            resized_img, image_load, scale = preprocess_dicom(image_path, 360)
+
+        elif cam_params["img_type"] == "PNG":
+            resized_img, image_load, scale = read_xray_png(image_path, 360)
+
+        else:
+            raise ValueError("Image type not supported")
+        cam_params["scale"] = scale
         landmarks_3d = get_3d_landmarks(data["landmarks_3d_path"], "fcsv", 11)
         # intrinsic params are hardcoded for now
         # intrinsic_param = scale * cam_params()["intrinsic"]
@@ -91,7 +99,7 @@ class Registration2D3D:
 
         # print(intrinsic_param)
 
-        return cls(image_load, data["ct_path"], landmarks_3d, None)
+        return cls(image_load, data["ct_path"], landmarks_3d, cam_params)
 
 
 if __name__ == "__main__":

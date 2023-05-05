@@ -148,7 +148,7 @@ class XregSolver(RegistrationSolver):
             resized_img, image_load, scale = preprocess_dicom(image_path_load, 360)
 
         elif cam_params["img_type"] == "PNG":
-            image_load = read_xray_png(image_path_load)
+            resized_img, image_load, scale = read_xray_png(image_path_load, 360)
 
         else:
             raise ValueError("Image type not supported")
@@ -362,7 +362,7 @@ class XregSolver(RegistrationSolver):
         data_frame = pd.DataFrame.drop(
             data_frame, columns=["pat", "proj", "time", "land"], axis=1
         )
-        
+
         # add the column for the landmark names
         data_frame["land-name"] = land_name
 
