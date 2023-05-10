@@ -2,10 +2,12 @@ import numpy as np
 import pandas as pd
 import subprocess
 from typing import Dict, List, Optional
-from utils import *
-from landmark_container import LandmarkContainer
-from args import *
 from abc import ABC, abstractmethod
+
+from .args import *
+from .utils import *
+from .landmark_container import LandmarkContainer
+from . import vis_utils as vis_utils
 
 
 class RegistrationSolver(ABC):
@@ -156,6 +158,14 @@ class XregSolver(RegistrationSolver):
         # print("Image loaded", image_load)
         landmarks_2d = cls.get_2d_landmarks(landmarks_2d_path)
 
+        land_names = list(landmarks_2d.keys())
+        land_vals = np.array([landmarks_2d[name] for name in land_names])
+        land_vals[:, [0, -1]] = land_vals[:, [-1, 0]]
+
+        keypoint_img = vis_utils.draw_keypoints(resized_img, land_vals, land_names)
+
+        cv2.imwrite("keypoint_img.png", keypoint_img)
+
         if ct_segmentation_path is None:
             raise ValueError(
                 "CT segmentation path is not provided, please refer to [total segmentator](https://github.com/wasserth/TotalSegmentator)"
@@ -193,6 +203,8 @@ class XregSolver(RegistrationSolver):
         the h5 file contains x-ray image and 2d landmarks
         """
 
+        # print("iamge", self.image.shape)
+
         h5_file = h5py.File(self.path["xray_path"], "w")
         h5_file.create_dataset("num-projs", data=1, dtype="u8")
         h5_file.create_group("proj-000")
@@ -223,6 +235,14 @@ class XregSolver(RegistrationSolver):
                                 data=self.cam_params["intrinsic"],
                                 dtype=h5_template["proj-000"][key][dataset].dtype,
                             )
+
+                        elif dataset == "cam-coord-frame-type":
+                            h5_file["proj-000"][key].create_dataset(
+                                dataset,
+                                data="origin-at-focal-pt-det-pos-z".encode("utf-8"),
+                                dtype=h5_template["proj-000"][key][dataset].dtype,
+                            )
+
                         else:
                             h5_file["proj-000"][key].create_dataset(
                                 dataset,
@@ -241,6 +261,8 @@ class XregSolver(RegistrationSolver):
         landmark = LandmarkContainer("2d", self.landmarks_2D)
         # print(landmark.landmark_name)
         landmark_2d = landmark.get_landmark()
+        print(landmark_2d)
+        print(self.landmarks_2D)
 
         # print(landmark_2d.keys())
         for lms in landmark_2d.keys():
@@ -248,15 +270,39 @@ class XregSolver(RegistrationSolver):
             landmark_values = self.cam_param["scale"] * np.reshape(
                 np.asarray([landmark_2d[lms][1], landmark_2d[lms][0]]), (2, 1)
             )
+            print(lms)
             print(landmark_values)
             h5_file["proj-000"]["landmarks"].create_dataset(
-                name=lms, data=landmark_values
+                name=lms, data=landmark_values, dtype="f4"
             )
 
             # print(np.asarray(landmarks_2d.iloc[lm_idx].values))
             # h5_file['proj-000']['landmarks'][lms] = 0.0
         h5_file.flush()
         h5_file.close()
+
+    def draw_landmarks(self, image: np.ndarray, landmarks: dict) -> np.ndarray:
+        """
+        Draw the landmarks on the image and save it
+
+        Args:
+        ------
+            image: np.ndarray
+                image to draw the landmarks on
+            landmarks: dict
+                dictionary of landmarks to draw on the image
+
+        Returns:
+        --------
+            image: np.ndarray
+                image with landmarks drawn on it
+        """
+        image = vis_utils.draw_keypoints(
+            image,
+            np.array([landmarks[name] for name in landmarks.keys()]),
+            landmarks.keys(),
+        )
+        return image
 
     def solve(self, runOptions: str) -> np.ndarray:
         """Call the executable file
@@ -354,6 +400,22 @@ class XregSolver(RegistrationSolver):
             "ASIS-l",
             "ASIS-r",
         ]  # this is the naming convention for the 2D landmarks in synthex generated csv file
+        # land_name = [
+        #     "FH-r",
+        #     "FH-l",
+        #     "GSN-r",
+        #     "GSN-l",
+        #     "IOF-r",
+        #     "IOF-l",
+        #     "MOF-r",
+        #     "MOF-l",
+        #     "SPS-r",
+        #     "SPS-l",
+        #     "IPS-r",
+        #     "IPS-l",
+        #     "ASIS-r",
+        #     "ASIS-l",
+        # ]
 
         landmarks_2d = {}
         data_frame = pd.read_csv(landmarks_path)

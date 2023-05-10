@@ -1,11 +1,13 @@
 import numpy as np
-from utils import *
-from typing import Type, Dict, List
+import os
+from typing import Type, Dict, List, Optional
 import pandas as pd
-from landmark_detector import SynthexDetector, LandmarkDetector
-from registration_solver import XregSolver, RegistrationSolver
-from args import cam_param
-import json
+
+from .args import cam_param
+from .utils import *
+from .landmark_detector import SynthexDetector, LandmarkDetector
+from .registration_solver import XregSolver, RegistrationSolver
+from . import config
 
 
 class Registration2D3D:
@@ -20,6 +22,7 @@ class Registration2D3D:
         ct_path: str,
         landmarks_3d: Dict[str, List[float]],
         cam_paras: Dict[str, np.ndarray],
+        path_container: Optional[Dict[str, str]],
     ):
         """
         Initialize Registration2D3D class
@@ -36,6 +39,7 @@ class Registration2D3D:
         self.ct_path = ct_path
         self.landmarks_3d = landmarks_3d
         self.cam_params = cam_paras
+        self.path = path_container
 
     def run(self):
         """
@@ -45,15 +49,13 @@ class Registration2D3D:
 
         landmark_detector = self.landmark_detector_type.load()
         landmark_detector.run()
-        with open("config/config.json", "r") as f:
-            path = json.load(f)
 
         registration_solver = self.registration_solver_type.load(
-            path["image_path"],
-            path["ct_path"],
-            path["CT_segmentation_path"],
-            path["out"],
-            path["landmarks_3d_path"],
+            self.path["image_path"],
+            self.path["ct_path"],
+            self.path["CT_segmentation_path"],
+            self.path["out"],
+            self.path["landmarks_3d_path"],
             self.cam_params,
         )
 
@@ -74,12 +76,13 @@ class Registration2D3D:
 
         """
         ##read json file
-        with open("config/config.json", "r") as f:
-            data = json.load(f)
-        image_path = newestfile(data["xray_path"])
-        data["image_path"] = image_path
-        with open("config/config.json", "w") as file:
-            json.dump(data, file)
+        path = config.load_json(os.path.abspath(config.__file__))
+
+        image_path = newestfile(path["xray_path"])
+        path["image_path"] = image_path
+
+        # with open("config/config.json", "w") as file:
+        #     json.dump(path, file)
 
         cam_params = cam_param()
         print("image_path", image_path)
@@ -92,14 +95,14 @@ class Registration2D3D:
         else:
             raise ValueError("Image type not supported")
         cam_params["scale"] = scale
-        landmarks_3d = get_3d_landmarks(data["landmarks_3d_path"], "fcsv", 11)
+        landmarks_3d = get_3d_landmarks(path["landmarks_3d_path"], "fcsv", 11)
         # intrinsic params are hardcoded for now
         # intrinsic_param = scale * cam_params()["intrinsic"]
         # intrinsic_param[-1] = 1
 
         # print(intrinsic_param)
 
-        return cls(image_load, data["ct_path"], landmarks_3d, cam_params)
+        return cls(image_load, path["ct_path"], landmarks_3d, cam_params, path)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 import argparse
-from SyntheX.dataset import *
-from SyntheX.util import *
-from SyntheX.TransUNet.transunet import VisionTransformer as ViT_seg
-from SyntheX.TransUNet.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
+from .dataset import *
+from .util import *
+from .TransUNet.transunet import VisionTransformer as ViT_seg
+from .TransUNet.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
 import os
 
 

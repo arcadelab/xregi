@@ -1,1 +1,26 @@
-{"nets": "/home/jeremy/Documents/xregi/xregi/data/yy_checkpoint_net_20.pt", "xray_path": "/home/jeremy/Documents/xregi/xregi/data/xray", "rand": true, "pats": "01", "no_gpu": true, "times": "", "heats_group_path": "nn-heats", "pat": "01", "use_seg": "nn-segs", "hm_lvl": true, "ds_factor": 4, "no_hdr": false, "threshold": 5, "label_path": "/home/jeremy/Documents/xregi/xregi/data/real_label.h5", "output_path": "/home/jeremy/Documents/xregi/xregi/data", "input_data_file_path": "/home/jeremy/Documents/xregi/xregi/data/synthex_input.h5", "input_label_file_path": "/home/jeremy/Documents/xregi/xregi/data/synthex_label_input.h5", "output_data_file_path": "/home/jeremy/Documents/xregi/xregi/data/output.h5", "heat_file_path": "/home/jeremy/Documents/xregi/xregi/data/output.h5", "out": "/home/jeremy/Documents/xregi/xregi/data/own_data.csv", "ct_path": "/home/jeremy/Documents/xregi/xregi/data/liverpool_ct.nii.gz", "landmarks_3d_path": "/home/jeremy/Documents/xregi/xregi/data/liverpool_landmarks.fcsv", "CT_segmentation_path": "/home/jeremy/Documents/xregi/xregi/data/liverpool_pelvis_seg.nii.gz", "image_path": "/home/jeremy/Documents/xregi/xregi/data/xray/0327.png"}
+{
+  "nets": "/home/jeremy/Documents/xregi/xregi/data/yy_checkpoint_net_20.pt",
+  "xray_path": "/home/jeremy/Documents/xregi/xregi/data/xray",
+  "rand": true,
+  "pats": "01",
+  "no_gpu": true,
+  "times": "",
+  "heats_group_path": "nn-heats",
+  "pat": "01",
+  "use_seg": "nn-segs",
+  "hm_lvl": true,
+  "ds_factor": 4,
+  "no_hdr": false,
+  "threshold": 2,
+  "label_path": "/home/jeremy/Documents/xregi/xregi/data/real_label.h5",
+  "output_path": "/home/jeremy/Documents/xregi/xregi/data",
+  "input_data_file_path": "/home/jeremy/Documents/xregi/xregi/data/synthex_input.h5",
+  "input_label_file_path": "/home/jeremy/Documents/xregi/xregi/data/synthex_label_input.h5",
+  "output_data_file_path": "/home/jeremy/Documents/xregi/xregi/data/output.h5",
+  "heat_file_path": "/home/jeremy/Documents/xregi/xregi/data/output.h5",
+  "out": "/home/jeremy/Documents/xregi/xregi/data/own_data.csv",
+  "ct_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis.nii.gz",
+  "landmarks_3d_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis_regi_2d_3d_lands.fcsv",
+  "CT_segmentation_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis_seg.nii.gz",
+  "image_path": "/home/jeremy/Documents/xregi/xregi/data/xray/0327.png"
+}

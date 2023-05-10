@@ -1,12 +1,14 @@
 import numpy as np
-from utils import *
 from abc import ABC, abstractmethod
-import SyntheX.class_ensemble as class_ensemble
-from SyntheX.est_land_csv import est_land_csv
 from typing import List, Dict, Optional
 import argparse
 import json
-from args import cam_param
+
+from .args import cam_param
+from .utils import *
+from .synthex.est_land_csv import est_land_csv
+from .synthex import class_ensemble
+from . import config
 
 
 class LandmarkDetector(ABC):
@@ -176,13 +178,12 @@ class SynthexDetector(LandmarkDetector):
             SynthexDetector: Synthex landmark detector
 
         """
-        with open("config/config.json") as f:
-            data = json.load(f)
-        f.close()
-        cls.gen_h5(data["xray_path"], data["label_path"], data["output_path"])
-        f = h5py.File(os.path.join(data["output_path"], "synthex_input.h5"), "r")
-        image = f[data["pats"]]["projs"]
-        return cls(image, None, data)
+        path = config.load_json(os.path.abspath(config.__file__))
+
+        cls.gen_h5(path["xray_path"], path["label_path"], path["output_path"])
+        f = h5py.File(os.path.join(path["output_path"], "synthex_input.h5"), "r")
+        image = f[path["pats"]]["projs"]
+        return cls(image, None, path)
 
     def gen_h5(xray_folder_path: str, label_path: str, output_path: str):
         cam_params = cam_param()
