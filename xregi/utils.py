@@ -10,6 +10,24 @@ import cv2
 import warnings
 
 
+def newestfile(directory):
+    """
+    get the newest file in the folder
+    """
+    # get a list of all files in the directory
+    files = os.listdir(directory)
+
+    # sort the files by modification time (newest first)
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(directory, x)), reverse=True)
+
+    # get the name of the newest file
+    newest_file = files[0]
+
+    # find absolute path
+    newest_file = os.path.join(directory, newest_file)
+    return newest_file
+
+
 def get_3d_landmarks(
     source_file_path: str, source_file_type: str, label_idx: int = 11
 ) -> dict:
@@ -133,56 +151,6 @@ def regulate_landmark_label(
     return target_label_name
 
 
-def run_xreg(runOptions: str):
-    """Call the executable file
-    Params:
-    -------
-    runOptions: str
-        'run_reg' or 'run_viz' ,
-        'run_reg' is used to run the registration
-        'run_viz' is used to visualize the registration result
-
-    Returns:
-    --------
-        None
-
-    """
-
-    if runOptions == "run_reg":
-        print("run_reg is running ...")
-
-        result = subprocess.run(
-            [
-                "bin/xreg-hip-surg-pelvis-single-view-regi-2d-3d",
-                "data/pelvis.nii.gz",
-                "data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
-                "data/example1_1_pd_003.h5",
-                "result/regi_pose_example1_1_pd_003_proj0.h5",
-                "result/regi_debug_example1_1_pd_003_proj0_w_seg.h5",
-                "-s",
-                "data/pelvis_seg.nii.gz",
-            ],
-            stdout=subprocess.PIPE,
-        )
-
-        # Print the output of the executable file
-        print(result.stdout.decode())
-
-    elif runOptions == "run_viz":
-        result = subprocess.run(
-            [
-                "bin/xreg-regi2d3d-replay",
-                "result/regi_debug_example1_1_pd_003_proj0_w_seg.h5",
-                "--video-fps",
-                "10",
-                "--proj-ds",
-                "0.5",
-            ],
-            stdout=subprocess.PIPE,
-        )
-        print(result.stdout.decode())
-
-
 def readh5(h5_path: str):
     """Read the h5 filex`
     Params:
@@ -274,7 +242,7 @@ def read_xray_dicom(path, to_32_bit=False, voi_lut=True, fix_monochrome=True):
     return image
 
 
-def read_xray_png(path, to_32_bit=False):
+def read_xray_png(path, img_size, to_32_bit=False):
     """
     Read the png file and return the pixel_array as a numpy array
 
@@ -288,12 +256,35 @@ def read_xray_png(path, to_32_bit=False):
     image: numpy array
         the pixel_array of the x-ray image
     """
-    image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    origin_image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
     if to_32_bit:
         image = image.astype(np.float32)
 
-    return image
+    # read dicom image and limit the
+
+    # check if image is square
+    if origin_image.shape[0] == origin_image.shape[1]:
+        crop_image = origin_image[
+            0 : origin_image.shape[0],
+            0 : origin_image.shape[0],
+        ]
+    else:
+        warnings.warn("Image is not square, cropping image to square.")
+        crop_image = origin_image[
+            0 : min(origin_image.shape[0], origin_image.shape[1]),
+            0 : min(origin_image.shape[0], origin_image.shape[1]),
+        ]  # crop image to square
+
+    # resize image to img_size
+    resized_image = cv2.resize(
+        crop_image, (img_size, img_size), interpolation=cv2.INTER_LINEAR
+    )
+
+    # calculate scale factor, to scale the intrinsic camera matrix
+    scale = crop_image.shape[0] / img_size
+
+    return resized_image, origin_image, scale
 
 
 def read_2d_landmarks(landmarks_dir: str) -> pd.DataFrame:
@@ -326,12 +317,9 @@ def dicom2h5(xray_folder_path: str, label_path: str, output_path: str):
     label_path = os.path.join(current_path, label_path)
     output_path = os.path.join(current_path, output_path)
 
-    file_names = [
-        f
-        for f in os.listdir(xray_folder_path)
-        if os.path.isfile(os.path.join(xray_folder_path, f))
-    ]
-    num_images = len(file_names)
+    file_names = [newestfile(xray_folder_path)]
+    print("***", file_names)
+    num_images = 1
 
     # Create an HDF5 file
     h5_file = h5py.File(os.path.join(output_path, "synthex_input.h5"), "w")
@@ -446,7 +434,10 @@ def preprocess_dicom(dicom_path: str, img_size: int):
 
     # check if image is square
     if origin_image.shape[0] == origin_image.shape[1]:
-        pass
+        crop_image = origin_image[
+            0 : origin_image.shape[0],
+            0 : origin_image.shape[0],
+        ]
     else:
         warnings.warn("Image is not square, cropping image to square.")
         crop_image = origin_image[
@@ -505,5 +496,6 @@ if __name__ == "__main__":
 
     # readh5("data/example1_1_pd_003.h5")
     # readh5("data/real_label.h5")
-    x, y = preprocess_dicom("data/xray/x_ray1.dcm", 360)
-    pass
+    # x, y = preprocess_dicom("data/xray/x_ray1.dcm", 360)
+    # pass
+    print(newestfile("data/xray"))
