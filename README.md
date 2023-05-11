@@ -6,7 +6,7 @@
 </a>
 <a href="https://www.python.org/"><img src='https://img.shields.io/badge/Made%20with-Python-1f425f.svg'>
 </a>
-<a href="https://pypi.org/project/xregi/"><img src='https://badge.fury.io/py/ansicolortags.svg'>
+<a href="https://pypi.org/manage/project/xregi/release/0.3.1/"><img src='https://badge.fury.io/py/ansicolortags.svg'>
 </a>
 </div>
 
