@@ -3,12 +3,8 @@ from distutils.core import setup
 import os
 
 # User-friendly description from README.md
-current_directory = os.path.dirname(os.path.abspath(__file__))
-try:
-    with open(os.path.join(current_directory, "README.md"), encoding="utf-8") as f:
-        long_description = f.read()
-except Exception:
-    long_description = ""
+with open("README.md") as file:
+    long_description = file.read()
 
 setup(
     # Name of the package
@@ -17,7 +13,7 @@ setup(
     packages=find_packages("."),
     # Start with a small number and increase it with
     # every change you make https://semver.org
-    version="0.1.0",
+    version="0.1.1",
     # Chose a license from here: https: //
     # help.github.com / articles / licensing - a -
     # repository. For example: MIT
@@ -25,7 +21,7 @@ setup(
     # Short description of your library
     description="A package for automatic 2D/3D registration of X-ray and CT images",
     # Long description of your library
-    # long_description=long_description,
+    long_description=long_description,
     long_description_content_type="markdown",
     # Your name
     author="Jiaming Zhang",
