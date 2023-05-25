@@ -1,4 +1,4 @@
-<h1 align='center'>XREGI</h1>
+<p align="center"><img src="doc/figs/xregi.jpeg" alt="xregi logo" style="zoom:50%;"></p>
 
 <div align='center'>
 <a href="https://colab.research.google.com/github/shez12/xregi/blob/dev-syn/xregi.ipynb">
