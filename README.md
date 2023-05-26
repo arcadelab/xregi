@@ -1,4 +1,4 @@
-<p align="center"><img src="doc/figs/xregi logo.png" alt="xregi logo" style="zoom:5%;"></p>
+<p align="center"><img src="doc/figs/xregi logo.png" alt="xregi logo" width="40%"></p>
 
 <div align='center'>
 <a href="https://colab.research.google.com/github/shez12/xregi/blob/dev-syn/xregi.ipynb">
@@ -18,9 +18,7 @@ This is a python package for registering x-ray images and CT scans. It is based 
 
 ## Third-party libraries
 Before you start, please make sure you have all the dependencies installed. The following libraries are required:
-- [Total Segmentator](https://github.com/wasserth/TotalSegmentator)
 - [xReg](https://github.com/rg2/xreg)
-- [SyntheX](https://github.com/arcadelab/SyntheX)
 
 ### Install TotalSegmentator
 Total segmentator can be installed through pip
@@ -54,7 +52,20 @@ On ubuntu 20.04, download the source code and install it under xregi path
 git clone https://github.com/shez12/xregi
 git checkout master
 ```
-Fetch the source data and example images from [this link](https://drive.google.com/drive/folders/1XzQgWfMVtkCq-Nnk2l_lE3UWeG2kEnyc?usp=share_link) or 
+
+
+
+## Usage
+### Prepare your data
+Before using xregi, you need at least 4 types of data:
+1. CT scan
+2. CT segmentation
+3. X-ray image
+4. 3D landmark position file
+
+The CT scan and X-ray image should be directly obtained by your imaging devices. The CT segmentation can be obtained by using [Total Segmentator](https://github.com/wasserth/TotalSegmentator). The tutorial of generating CT segmentation can be found [here](doc/CT_segmentation.md). The 3D landmark position file can be obtained by using [3D Slicer](https://www.slicer.org/). The tutorial of generating 3D landmark position file can be found [here](doc/3D_landmark.md).
+
+Or, you can fetch the source data and example images from [this link](https://drive.google.com/drive/folders/1XzQgWfMVtkCq-Nnk2l_lE3UWeG2kEnyc?usp=share_link) or 
 ```bash
 #download data.zip
 wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1wjrxNE6B0pX3IooGxwC_cjf4n8MhxU1p' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1wjrxNE6B0pX3IooGxwC_cjf4n8MhxU1p" -O data.zip && rm -rf /tmp/cookies.txt
@@ -63,14 +74,12 @@ wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download
 cd Downloads/
 unzip data.zip
 ```
-
-
-## Usage
-Before using xregi, you need to move the data folder to xregi directory.
+move the data folder to xregi directory.
 ```bash
 mv data xregi/
 ```
 
+### Run xregi
 xregi supports command line interactions and API. To use the API, 
 ```python
 import xregi
