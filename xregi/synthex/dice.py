@@ -9,7 +9,7 @@ import torch
 
 import torch.nn.modules.loss
 
-from SyntheX.ncc import ncc_2d
+from .ncc import ncc_2d
 
 
 class DiceLoss2D(torch.nn.modules.loss._Loss):
@@ -27,28 +27,48 @@ class DiceLoss2D(torch.nn.modules.loss._Loss):
         if self.skip_bg:
             # numerator of Dice, for each class except class 0 (background)
             # multiply by -2 (usually +2), since we are minimizing the objective function and we want to maximize Dice
-            numerators = -2 * \
-                torch.sum(
-                    torch.sum(target[:, 1:, :, :] * input[:, 1:, :, :], dim=3), dim=2) + eps
+            numerators = (
+                -2
+                * torch.sum(
+                    torch.sum(target[:, 1:, :, :] * input[:, 1:, :, :], dim=3), dim=2
+                )
+                + eps
+            )
 
             # denominator of Dice, for each class except class 0 (background)
-            denominators = torch.sum(torch.sum(target[:, 1:, :, :] * target[:, 1:, :, :], dim=3), dim=2) + \
+            denominators = (
                 torch.sum(
-                    torch.sum(input[:, 1:, :, :] * input[:, 1:, :, :], dim=3), dim=2) + eps
+                    torch.sum(target[:, 1:, :, :] * target[:, 1:, :, :], dim=3), dim=2
+                )
+                + torch.sum(
+                    torch.sum(input[:, 1:, :, :] * input[:, 1:, :, :], dim=3), dim=2
+                )
+                + eps
+            )
 
             # minus one to exclude the background class
             num_classes = input.shape[1] - 1
         else:
             # numerator of Dice, for each class
             # multiply by -2 (usually +2), since we are minimizing the objective function and we want to maximize Dice
-            numerators = -2 * \
-                torch.sum(
-                    torch.sum(target[:, :, :, :] * input[:, :, :, :], dim=3), dim=2) + eps
+            numerators = (
+                -2
+                * torch.sum(
+                    torch.sum(target[:, :, :, :] * input[:, :, :, :], dim=3), dim=2
+                )
+                + eps
+            )
 
             # denominator of Dice, for each class
-            denominators = torch.sum(torch.sum(target[:, :, :, :] * target[:, :, :, :], dim=3), dim=2) + \
+            denominators = (
                 torch.sum(
-                    torch.sum(input[:, :, :, :] * input[:, :, :, :], dim=3), dim=2) + eps
+                    torch.sum(target[:, :, :, :] * target[:, :, :, :], dim=3), dim=2
+                )
+                + torch.sum(
+                    torch.sum(input[:, :, :, :] * input[:, :, :, :], dim=3), dim=2
+                )
+                + eps
+            )
 
             num_classes = input.shape[1]
 
@@ -68,7 +88,7 @@ class DiceAndHeatMapLoss2D(torch.nn.modules.loss._Loss):
 
         self.dice_loss = DiceLoss2D(skip_bg=skip_bg)
 
-        assert((heatmap_wgt > 1.0e-8) and (heatmap_wgt < (1 + 1.0e-8)))
+        assert (heatmap_wgt > 1.0e-8) and (heatmap_wgt < (1 + 1.0e-8))
         self.heatmap_wgt = heatmap_wgt
         self.dice_wgt = 1 - heatmap_wgt
 
@@ -82,8 +102,8 @@ class DiceAndHeatMapLoss2D(torch.nn.modules.loss._Loss):
         num_lands = tgt_heatmaps.shape[1]
 
         # L2 Loss
-        #hm_errs = (in_heatmaps - tgt_heatmaps).pow(2)
-        #avg_hm_errs = torch.sum(torch.sum(torch.sum(hm_errs, dim=3), dim=2), dim=1) / num_lands
+        # hm_errs = (in_heatmaps - tgt_heatmaps).pow(2)
+        # avg_hm_errs = torch.sum(torch.sum(torch.sum(hm_errs, dim=3), dim=2), dim=1) / num_lands
         # return self.dice_loss(in_seg, tgt_seg) + (self.heatmap_wgt * torch.mean(avg_hm_errs))
 
         ncc_losses = ncc_2d(in_heatmaps, tgt_heatmaps)
@@ -91,4 +111,6 @@ class DiceAndHeatMapLoss2D(torch.nn.modules.loss._Loss):
         # negation since we are minmizing, normalize output in range [-1,0]
         ncc_losses = (ncc_losses + 1) * -0.5
 
-        return (self.dice_wgt * self.dice_loss(in_seg, tgt_seg)) + (self.heatmap_wgt * torch.mean(ncc_losses))
+        return (self.dice_wgt * self.dice_loss(in_seg, tgt_seg)) + (
+            self.heatmap_wgt * torch.mean(ncc_losses)
+        )

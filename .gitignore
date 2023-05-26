@@ -24,3 +24,8 @@ __pycache__/
 *.gif
 *.mov
 
+# ignore the wheel files
+dist/**
+*.egg-info/**
+*.egg/**
+build/**
