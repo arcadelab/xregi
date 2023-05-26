@@ -11,7 +11,7 @@
   "hm_lvl": true,
   "ds_factor": 4,
   "no_hdr": false,
-  "threshold": 2,
+  "threshold": 4,
   "label_path": "/home/jeremy/Documents/xregi/xregi/data/real_label.h5",
   "output_path": "/home/jeremy/Documents/xregi/xregi/data",
   "input_data_file_path": "/home/jeremy/Documents/xregi/xregi/data/synthex_input.h5",
