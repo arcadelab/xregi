@@ -1,4 +1,4 @@
-<p align="center"><img src="doc/figs/xregi logo.png" alt="xregi logo" style="zoom:10%;"></p>
+<p align="center"><img src="doc/figs/xregi logo.png" alt="xregi logo" style="zoom:5%;"></p>
 
 <div align='center'>
 <a href="https://colab.research.google.com/github/shez12/xregi/blob/dev-syn/xregi.ipynb">
@@ -23,7 +23,7 @@ Before you start, please make sure you have all the dependencies installed. The 
 - [SyntheX](https://github.com/arcadelab/SyntheX)
 
 ### Install TotalSegmentator
-total segmentator can be installed through pip
+Total segmentator can be installed through pip
 ```bash
 pip install TotalSegmentator
 ```
@@ -53,9 +53,8 @@ On ubuntu 20.04, download the source code and install it under xregi path
 ```bash
 git clone https://github.com/shez12/xregi
 git checkout master
-
 ```
-Fetch the source data and example images from [here](https://drive.google.com/drive/folders/1XzQgWfMVtkCq-Nnk2l_lE3UWeG2kEnyc?usp=share_link) or 
+Fetch the source data and example images from [this link](https://drive.google.com/drive/folders/1XzQgWfMVtkCq-Nnk2l_lE3UWeG2kEnyc?usp=share_link) or 
 ```bash
 #download data.zip
 wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1wjrxNE6B0pX3IooGxwC_cjf4n8MhxU1p' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1wjrxNE6B0pX3IooGxwC_cjf4n8MhxU1p" -O data.zip && rm -rf /tmp/cookies.txt
@@ -83,7 +82,16 @@ reg_.solve()
 ...
 ```
 
+To use the command line interface, simply run
+```bash
+python -m xregi 
+```
 
+To specify the input and output path, go to the xregi directory and change the values in config.yaml, for example:
+```yaml
+"CT_segmentation_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis_seg.nii.gz" 
+# change this directory to your own absolute path
+```
 
 ## Contributors
 [Jiaming (Jeremy) Zhang](https://jeremyzz830.github.io/), MSE in Robotics, Johns Hopkins University
