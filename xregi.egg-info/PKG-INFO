@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: xregi
-Version: 0.3.1
+Version: 0.3.2
 Summary: A package for automatic 2D/3D registration of X-ray and CT images
 Home-page: https://github.com/shez12/xregi
 Download-URL: 
