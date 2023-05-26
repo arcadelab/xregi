@@ -1,4 +1,4 @@
-<h1 align='center'>XREGI</h1>
+<p align="center"><img src="doc/figs/xregi.jpeg" alt="xregi logo" style="zoom:50%;"></p>
 
 <div align='center'>
 <a href="https://colab.research.google.com/github/shez12/xregi/blob/dev-syn/xregi.ipynb">
@@ -6,7 +6,10 @@
 </a>
 <a href="https://www.python.org/"><img src='https://img.shields.io/badge/Made%20with-Python-1f425f.svg'>
 </a>
-<a href="https://pypi.python.org/pypi/ansicolortags/"><img src='https://badge.fury.io/py/ansicolortags.svg'>
+<a href="https://pypi.org/project/xregi/"><img src='https://badge.fury.io/py/xregi.svg'>
+</a>
+<a href="https://opensource.org/licenses/MIT">
+<img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
 </a>
 </div>
 
