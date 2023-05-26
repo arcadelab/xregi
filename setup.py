@@ -13,7 +13,7 @@ setup(
     packages=find_packages("."),
     # Start with a small number and increase it with
     # every change you make https://semver.org
-    version="0.3.3",
+    version="0.3.4",
     # Chose a license from here: https: //
     # help.github.com / articles / licensing - a -
     # repository. For example: MIT
@@ -22,7 +22,7 @@ setup(
     description="A package for automatic 2D/3D registration of X-ray and CT images",
     # Long description of your library
     long_description=long_description,
-    long_description_content_type="markdown",
+    long_description_content_type="text/markdown",
     # Your name
     author="Jiaming Zhang",
     # Your email
