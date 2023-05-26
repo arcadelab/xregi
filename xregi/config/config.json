@@ -11,7 +11,7 @@
   "hm_lvl": true,
   "ds_factor": 4,
   "no_hdr": false,
-  "threshold": 1,
+  "threshold": 4,
   "label_path": "/home/jeremy/Documents/xregi/xregi/data/real_label.h5",
   "output_path": "/home/jeremy/Documents/xregi/xregi/data",
   "input_data_file_path": "/home/jeremy/Documents/xregi/xregi/data/synthex_input.h5",
@@ -20,7 +20,7 @@
   "heat_file_path": "/home/jeremy/Documents/xregi/xregi/data/output.h5",
   "out": "/home/jeremy/Documents/xregi/xregi/data/own_data.csv",
   "ct_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis.nii.gz",
-  "landmarks_3d_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis_regi_2d_3d_lands_wo_id.fcsv",
+  "landmarks_3d_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis_regi_2d_3d_lands.fcsv",
   "CT_segmentation_path": "/home/jeremy/Documents/xregi/xregi/data/pelvis_seg.nii.gz",
-  "image_path": "/home/jeremy/Documents/xregi/xregi/data/xray/x_ray1.dcm"
+  "image_path": "/home/jeremy/Documents/xregi/xregi/data/xray/0327.png"
 }

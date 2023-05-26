@@ -18,7 +18,7 @@ import PIL.Image as Image
 
 import matplotlib.pyplot as plt
 
-from SyntheX.util import *
+from .util import *
 
 
 def calc_pad_amount(padded_img_dim, cur_img_dim):

@@ -13,7 +13,7 @@ import torch.nn as nn
 
 from torch.utils.data import DataLoader
 
-from SyntheX.dice import *
+from .dice import *
 
 # For Adversarial Discriminative Domain Adaptation
 
@@ -39,13 +39,15 @@ def get_gaussian_2d_heatmap(num_rows, num_cols, sigma, peak_row=None, peak_col=N
     Y = Y.float()
     X = X.float()
 
-    return torch.exp(((X - peak_col).pow(2) + (Y - peak_row).pow(2)) / (sigma * sigma * -2)) / (2 * math.pi * sigma * sigma)
+    return torch.exp(
+        ((X - peak_col).pow(2) + (Y - peak_row).pow(2)) / (sigma * sigma * -2)
+    ) / (2 * math.pi * sigma * sigma)
 
 
 def write_floats_to_txt(file_path, floats):
-    with open(file_path, 'w') as out:
+    with open(file_path, "w") as out:
         for f in floats:
-            out.write('{:.6f}\n'.format(f))
+            out.write("{:.6f}\n".format(f))
         out.flush()
 
 
@@ -57,14 +59,14 @@ class RunningFloatWriter:
     def __init__(self, file_path, new_file=True):
         super(RunningFloatWriter, self).__init__()
 
-        write_mode = 'w'
+        write_mode = "w"
         if not new_file:
-            write_mode = 'a'
+            write_mode = "a"
 
         self.out = open(file_path, write_mode)
 
     def write(self, x):
-        self.out.write('{:.6f}\n'.format(x))
+        self.out.write("{:.6f}\n".format(x))
         self.out.flush()
 
     def close(self):
@@ -102,7 +104,7 @@ def center_crop(img, dst_shape):
         elif img.dim() == 3:
             return img[:, src_start_r:src_end_r, src_start_c:src_end_c]
         else:
-            assert(img.dim() == 2)
+            assert img.dim() == 2
             return img[src_start_r:src_end_r, src_start_c:src_end_c]
     else:
         return img
@@ -123,7 +125,7 @@ def test_dataset(ds, net, dev=None, num_lands=0, adv_loss=False):
         else:
             criterion = DiceLoss2D(skip_bg=False)
 
-        for (i, data) in enumerate(dl, 0):
+        for i, data in enumerate(dl, 0):
             (projs, masks, lands, heats) = data
 
             if dev is not None:
@@ -131,10 +133,14 @@ def test_dataset(ds, net, dev=None, num_lands=0, adv_loss=False):
                 masks = masks.to(dev)
                 if num_lands > 0:
                     if len(heats.shape) > 4:
-                        assert(len(heats.shape) == 5)
-                        assert(heats.shape[2] == 1)
+                        assert len(heats.shape) == 5
+                        assert heats.shape[2] == 1
                         heats = heats.view(
-                            heats.shape[0], heats.shape[1], heats.shape[3], heats.shape[4])
+                            heats.shape[0],
+                            heats.shape[1],
+                            heats.shape[3],
+                            heats.shape[4],
+                        )
                     heats = heats.to(dev)
 
             if not adv_loss:
@@ -160,7 +166,7 @@ def test_dataset(ds, net, dev=None, num_lands=0, adv_loss=False):
 
             num_items += 1
 
-        assert(num_items == len(ds))
+        assert num_items == len(ds)
 
         return (torch.mean(losses), torch.std(losses))
 
@@ -183,7 +189,7 @@ def test_dataset_ensemble(ds, nets, dev=None, num_lands=0, dice_only=False):
         else:
             criterion = DiceLoss2D(skip_bg=False)
 
-        for (i, data) in enumerate(dl, 0):
+        for i, data in enumerate(dl, 0):
             (projs, masks, lands, heats) = data
 
             if dev is not None:
@@ -191,10 +197,14 @@ def test_dataset_ensemble(ds, nets, dev=None, num_lands=0, dice_only=False):
                 masks = masks.to(dev)
                 if num_lands > 0:
                     if len(heats.shape) > 4:
-                        assert(len(heats.shape) == 5)
-                        assert(heats.shape[2] == 1)
+                        assert len(heats.shape) == 5
+                        assert heats.shape[2] == 1
                         heats = heats.view(
-                            heats.shape[0], heats.shape[1], heats.shape[3], heats.shape[4])
+                            heats.shape[0],
+                            heats.shape[1],
+                            heats.shape[3],
+                            heats.shape[4],
+                        )
                     heats = heats.to(dev)
 
             avg_masks = None
@@ -238,7 +248,7 @@ def test_dataset_ensemble(ds, nets, dev=None, num_lands=0, dice_only=False):
 
             num_items += 1
 
-        assert(num_items == len(ds))
+        assert num_items == len(ds)
 
         return (torch.mean(losses), torch.std(losses))
 
@@ -248,24 +258,32 @@ def seg_dataset(ds, net, h5_f, dev=None, num_lands=0):
 
     dl = DataLoader(ds, batch_size=1, shuffle=False)
 
-    dst_ds = h5_f.create_dataset('nn-segs', (len(ds), *orig_img_shape),
-                                 dtype='u1',
-                                 chunks=(1, *orig_img_shape),
-                                 compression="gzip", compression_opts=9)
+    dst_ds = h5_f.create_dataset(
+        "nn-segs",
+        (len(ds), *orig_img_shape),
+        dtype="u1",
+        chunks=(1, *orig_img_shape),
+        compression="gzip",
+        compression_opts=9,
+    )
 
     dst_heats_ds = None
 
     if num_lands > 0:
-        dst_heats_ds = h5_f.create_dataset('nn-heats', (len(ds), num_lands, *orig_img_shape),
-                                           chunks=(1, 1, *orig_img_shape),
-                                           compression="gzip", compression_opts=9)
+        dst_heats_ds = h5_f.create_dataset(
+            "nn-heats",
+            (len(ds), num_lands, *orig_img_shape),
+            chunks=(1, 1, *orig_img_shape),
+            compression="gzip",
+            compression_opts=9,
+        )
 
     with torch.no_grad():
         net.eval()
 
         num_items = 0
 
-        for (i, data) in enumerate(dl, 0):
+        for i, data in enumerate(dl, 0):
             projs = data[0]
 
             if dev is not None:
@@ -287,31 +305,42 @@ def seg_dataset(ds, net, h5_f, dev=None, num_lands=0):
 
             if dst_heats_ds is not None:
                 dst_heats_ds[i, :, :, :] = center_crop(
-                    pred_heats, orig_img_shape).numpy()
+                    pred_heats, orig_img_shape
+                ).numpy()
 
             num_items += 1
 
-        assert(num_items == len(ds))
+        assert num_items == len(ds)
 
 
-def seg_dataset_ensemble(ds, nets, h5_f, dev=None, num_lands=0, times=None, adv_loss=False):
+def seg_dataset_ensemble(
+    ds, nets, h5_f, dev=None, num_lands=0, times=None, adv_loss=False
+):
     num_nets = len(nets)
 
     orig_img_shape = ds.rob_orig_img_shape
 
     dl = DataLoader(ds, batch_size=1, shuffle=False)
 
-    dst_ds = h5_f.create_dataset('nn-segs', (len(ds), *orig_img_shape),
-                                 dtype='u1',
-                                 chunks=(1, *orig_img_shape),
-                                 compression="gzip", compression_opts=9)
+    dst_ds = h5_f.create_dataset(
+        "nn-segs",
+        (len(ds), *orig_img_shape),
+        dtype="u1",
+        chunks=(1, *orig_img_shape),
+        compression="gzip",
+        compression_opts=9,
+    )
 
     dst_heats_ds = None
 
     if num_lands > 0:
-        dst_heats_ds = h5_f.create_dataset('nn-heats', (len(ds), num_lands, *orig_img_shape),
-                                           chunks=(1, 1, *orig_img_shape),
-                                           compression="gzip", compression_opts=9)
+        dst_heats_ds = h5_f.create_dataset(
+            "nn-heats",
+            (len(ds), num_lands, *orig_img_shape),
+            chunks=(1, 1, *orig_img_shape),
+            compression="gzip",
+            compression_opts=9,
+        )
 
     with torch.no_grad():
         for net in nets:
@@ -319,7 +348,7 @@ def seg_dataset_ensemble(ds, nets, h5_f, dev=None, num_lands=0, times=None, adv_
 
         num_items = 0
 
-        for (i, data) in enumerate(dl, 0):
+        for i, data in enumerate(dl, 0):
             projs = data[0]
 
             start_time = time.time()
@@ -356,8 +385,9 @@ def seg_dataset_ensemble(ds, nets, h5_f, dev=None, num_lands=0, times=None, adv_
                     pred_heats_min = pred_heats.min().item()
                     pred_heats_max = pred_heats.max().item()
 
-                    pred_heats = (pred_heats - pred_heats_min) / \
-                        (pred_heats_max - pred_heats_min)
+                    pred_heats = (pred_heats - pred_heats_min) / (
+                        pred_heats_max - pred_heats_min
+                    )
 
                     if avg_heats is None:
                         avg_heats = pred_heats
@@ -383,4 +413,4 @@ def seg_dataset_ensemble(ds, nets, h5_f, dev=None, num_lands=0, times=None, adv_
 
             num_items += 1
 
-        assert(num_items == len(ds))
+        assert num_items == len(ds)

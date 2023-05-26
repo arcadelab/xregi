@@ -3,17 +3,26 @@ import os
 
 
 # Read Existing JSON File
-def config_json(xray_path, net_path, ct_path, landmarks_3d_path, CT_segmentation_path):
-    with open("config/config.json", "r") as f:
+def config_json(
+    xray_path,
+    net_path,
+    ct_path,
+    landmarks_3d_path,
+    CT_segmentation_path,
+    config_file_path,
+):
+    current_path = os.path.abspath(os.path.dirname(__file__))
+
+    json_path = os.path.join(os.path.dirname(config_file_path), "config/config.json")
+    print("json_path", json_path)
+
+    with open(json_path, "r") as f:
         data = json.load(f)
     f.close()
 
     ## add args into config.json
-    current_path = os.path.abspath(os.path.dirname(__file__))
-    current_path = os.path.dirname(current_path)
 
     data["xray_path"] = os.path.join(current_path, xray_path)
-    data["image_path"] = os.path.join(current_path, xray_path, "x_ray1.dcm")
     data["nets"] = os.path.join(current_path, net_path)
     data["ct_path"] = os.path.join(current_path, ct_path)
     data["landmarks_3d_path"] = os.path.join(current_path, landmarks_3d_path)
@@ -31,8 +40,21 @@ def config_json(xray_path, net_path, ct_path, landmarks_3d_path, CT_segmentation
     data["out"] = os.path.join(current_path, "data/own_data.csv")
 
     # Create new JSON file
-    with open("config/config.json", "w") as f:
+    with open(json_path, "w") as f:
         json.dump(data, f, indent=2)
 
     # Closing file
     f.close()
+
+
+def load_json(config_file_path):
+    json_path = os.path.join(os.path.dirname(config_file_path), "config/config.json")
+
+    with open(json_path, "r") as f:
+        path = json.load(f)
+
+    return path
+
+
+if __name__ == "__main__":
+    config_json()
